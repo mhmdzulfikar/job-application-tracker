@@ -3,6 +3,7 @@ import { CSS } from "@dnd-kit/utilities"; // 2. Buat animasi gerak
 import { FaBuilding, FaMoneyBillWave, FaCalendarAlt } from "react-icons/fa";
 
 
+
 const JobCard = ({ job, onDelete }) => {
   // 3. Pasang Hook useDraggable
   // id: KTP kartu ini biar sistem tau siapa yang lagi diangkat
@@ -10,7 +11,7 @@ const JobCard = ({ job, onDelete }) => {
     id: job.id.toString(), // ID harus String
   });
 
-  // 4. Style biar pas digeser dia ngikutin mouse
+
   const style = {
     transform: CSS.Translate.toString(transform),
   };
@@ -25,8 +26,8 @@ const JobCard = ({ job, onDelete }) => {
   };
 
   return (
-    // 5. Pasang ref dan style di div terluar
-    // {...listeners} {...attributes} itu kayak "Lem" biar bisa di-klik & geser
+  
+    // {...listeners} {...attributes} 
     <div 
         ref={setNodeRef} 
         style={style} 
