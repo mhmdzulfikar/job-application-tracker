@@ -25,6 +25,9 @@ const [jobs, setJobs] = useState(() => {
   
   const [isModalOpen, setIsModalOpen] = useState(false); // State buat buka tutup modal
   const [activeId, setActiveId] = useState(null); 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [editingJob, setEditingJob] = useState(null);
+
 
   // 2. EFFECT: Penjaga yang kerja tiap ada perubahan
   useEffect(() => {
@@ -57,17 +60,35 @@ const [jobs, setJobs] = useState(() => {
 
   const handleDragStart = (event) => setActiveId(event.active.id);
 
-  // 5. LOGIC NAMBAH JOB (Dari Modal)
-  const handleAddJob = (newJobData) => {
+ const handleAddJob = (jobData) => {
+  // CEK: Lagi bawa data editan nggak?
+  if (editingJob) {
+    
+    // --- JALUR EDIT (UPDATE) ---
+    setJobs((prevJobs) => 
+      prevJobs.map((job) => 
+        // Kalau ID-nya sama, timpa datanya. Kalau beda, biarin.
+        job.id === editingJob.id ? { ...job, ...jobData } : job
+      )
+    );
+    
+    setEditingJob(null); // Reset, mode edit selesai.
+
+  } else {
+
+    // --- JALUR BARU (ADD) ---
     const newJob = {
-      ...newJobData,
-      id: Date.now(), // ID unik berdasarkan timestamp
-      ...newJobData,
-      date: new Date().toLocaleDateString('id-ID'),
+      ...jobData,
+      id: Date.now(), // Bikin ID unik
+      date: new Date().toLocaleDateString("id-ID"),
     };
-    setJobs((prev) => [newJob, ...prev]); // Masukin data job baru ke paling depan (...prev(prev itu data lama.)))
-    setIsModalOpen(false); // Tutup modalnya
-  };
+    
+    setJobs((prev) => [newJob, ...prev]); // Masukin ke paling atas
+  }
+
+  // Terakhir, tutup pintu (Modal).
+  setIsModalOpen(false);
+};
 
   return (
     <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
@@ -75,9 +96,18 @@ const [jobs, setJobs] = useState(() => {
             
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800">📌 Kanban Board</h1>
+                    <h1 className="text-2xl font-bold text-gray-800"> Kanban Board</h1>
                     <p className="text-sm text-gray-500">Geser kartu untuk update status.</p>
                 </div>
+
+                  <input 
+                    type="text" 
+                    placeholder="Cari perusahaan..." 
+                    className="mb-4 p-2 border border-gray-300 rounded-lg w-full max-w-xs"
+
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+
                 {/* Tombol buat BUKA modal (set true) */}
                 <button 
                     onClick={() => setIsModalOpen(true)}
@@ -88,7 +118,11 @@ const [jobs, setJobs] = useState(() => {
             </div>
 
             <div className="flex gap-4 overflow-x-auto pb-4 h-full items-start">
+
+              
+
                 {columns.map((colTitle) => (
+
                     <KanbanColumn 
                         key={colTitle} 
                         id={colTitle} 
@@ -98,7 +132,11 @@ const [jobs, setJobs] = useState(() => {
                         {/* INI BAGIAN PENTING: Rendering List */}
                         {jobs
                             .filter((job) => job.status === colTitle)
+                            .filter((job) =>  
+                                job.company.toLowerCase().includes(searchTerm.toLowerCase())
+                            )
                             .map((job) => (
+
                                 // Kita oper fungsi handleDeleteJob ke anak (JobCard)
                                 // Biar tombol sampah di anak bisa berfungsi
                                 <JobCard 

@@ -24,7 +24,7 @@ export default function Analytics() {
 
   return (
     <div className="p-6 animate-fade-in">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">📊 Laporan Perjuangan</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6"> Laporan Perjuangan</h1>
 
       {/* Grid Kartu Statistik */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

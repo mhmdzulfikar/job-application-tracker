@@ -37,7 +37,7 @@ export default function AddJobModal({ isOpen, onClose, onAdd }) {
         
         {/* Header Modal */}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-800">Tambah Lamaran 💼</h2>
+          <h2 className="text-xl font-bold text-gray-800">Tambah Lamaran </h2>
           <button onClick={onClose} className="text-gray-400 hover:text-red-500">
             <FaTimes />
           </button>
