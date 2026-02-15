@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Analytics from "./pages/Analytics";
+import TailwindPlayground from "./pages/TailwindPlayground";
 
 function App() {
   return (
@@ -13,6 +14,9 @@ function App() {
         
         {/* Kalau buka /analytics, buka Analytics */}
         <Route path="analytics" element={<Analytics />} />
+        
+        {/* Kalau buka /tailwind, buka TailwindPlayground */}
+        <Route path="tailwind" element={<TailwindPlayground />} />
         
         {/* Kalau buka /settings (belum ada file), kasih tulisan aja */}
         <Route path="settings" element={<div className="p-6">Halaman Settings (Soon)</div>} />
