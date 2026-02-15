@@ -6,15 +6,16 @@ export default function TailwindPlayground() {
   const [isFollowed, setIsFollowed] = useState(false); // boleean buat toggle tombol follow
   const [isLiked, setIsLiked] = useState(false); // boolean buat toggle tombol like (hati)
   const [likeCount, setLikeCount] = useState(0); // state buat nyimpen jumlah like
+  const [name, setName] = useState("ZULFIKAR"); // state buat nyimpen nama di kartu profil
 
 
   const handleLikeToggele = () => {
     if (isLiked) {
       setLikeCount(likeCount -1);
-      setIsLiked(true);
+      setIsLiked(false);
     } else {
       setLikeCount(likeCount +1);
-      setIsLiked(false);
+      setIsLiked(true);
     }
   }
 
@@ -34,7 +35,22 @@ export default function TailwindPlayground() {
         {/* Paste Kodingan Kartu Profil Lu Di Sini */}
         <div className="bg-white w-64 rounded-[10px] gap-4 mt-6  shadow-lg p-6 flex flex-col justify-center items-center">
             <div className="bg-blue-500 w-24 h-24 rounded-full mb-4"></div>
-            <h1 className="text-2xl font-bold text-gray-800">ZULFIKRAR</h1>
+
+            <h1 className="text-2xl font-bold text-gray-800 uppercase">
+              {name}
+              </h1>
+
+              <div className="mt-6 w-full">
+                <input 
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder='Ganti nama kamu...'
+                className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-center text-sm'
+                />
+              </div>
+
+
             <p className="text-sm text-gray-500 mb-2">Mahasiswa Semester 6</p>
             <ul className="text-xs text-gray-600 text-center mb-6">
                 <li>Skill: React, Tailwindcss, HTML, CSS</li>
@@ -75,6 +91,13 @@ export default function TailwindPlayground() {
                 {likeCount}
               </span>
             </button>
+
+              {isLiked && (
+                <p className="mt-2 text-xs text-green-600 font-semibold animate-bounce ">
+                  You liked this!
+                </p>
+              )}
+
         </div>
 
         
