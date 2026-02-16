@@ -143,7 +143,12 @@ const [jobs, setJobs] = useState(() => {
                                     key={job.id} 
                                     job={job} 
                                     onDelete={handleDeleteJob} 
-                                />
+
+                                    onEdit={() => {
+                                        setEditingJob(job);    // 1. Simpen data job yang mau diedit
+                                        setIsModalOpen(true);  // 2. Buka modalnya
+                                    }}
+                                                            />
                             ))
                         }
                     </KanbanColumn>
@@ -155,7 +160,9 @@ const [jobs, setJobs] = useState(() => {
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)}
                 onAdd={handleAddJob}
+                initialData={editingJob}
             />
+           
         </div>
     </DndContext>
   );

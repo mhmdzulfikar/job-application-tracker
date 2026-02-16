@@ -1,22 +1,39 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 
 // Terima props: isOpen (buka/tutup), onClose (fungsi tutup), onAdd (fungsi nambah data)
-export default function AddJobModal({ isOpen, onClose, onAdd }) {
+export default function AddJobModal({ isOpen, onClose, onAdd, initialData }) {
   // State untuk form input
   const [formData, setFormData] = useState({
     company: "",
+      company: "",
     position: "",
     salary: "",
     status: "Wishlist" // Default masuk ke Wishlist dulu
-  });
+  }); 
+  }
 
+   useEffect(() => {
+    if (isOpen) { // Hanya update kalau modal terbuka
+      if (initialData) {
+        setFormData(initialData);
+      } else {
+        setFormData({ company: "", position: "", salary: "", status: "Wishlist" });
+      }
+    }
+  }, [initialData, isOpen]);
+  
   // Kalau isOpen false, jangan tampilkan apa-apa (return null)
-  if (!isOpen) return null;
+ 
 
   // Logic pas tombol Simpan ditekan
   const handleSubmit = (e) => {
     e.preventDefault(); // Biar gak reload halaman
+
+    if (formData.company === "" || formData.position === "") {
+      alert("Nama perusahaan dan posisi wajib diisi!");
+      return;
+    }
     
     // Kirim data ke Bapak (Dashboard)
     onAdd(formData); 
@@ -28,6 +45,8 @@ export default function AddJobModal({ isOpen, onClose, onAdd }) {
     onClose();
   };
 
+  
+ if (!isOpen) return null;
   return (
     // Overlay Hitam (Background)
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
@@ -100,4 +119,3 @@ export default function AddJobModal({ isOpen, onClose, onAdd }) {
       </div>
     </div>
   );
-}

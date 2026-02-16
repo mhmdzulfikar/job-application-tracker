@@ -1,10 +1,10 @@
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities"; // 2. Buat animasi gerak
-import { FaBuilding, FaMoneyBillWave, FaCalendarAlt } from "react-icons/fa";
+import { FaBuilding, FaMoneyBillWave, FaCalendarAlt, FaPen, FaTrash } from "react-icons/fa";
 
 
 
-const JobCard = ({ job, onDelete }) => {
+const JobCard = ({ job, onDelete, onEdit }) => {
   // 3. Pasang Hook useDraggable
   // id: KTP kartu ini biar sistem tau siapa yang lagi diangkat
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
@@ -35,9 +35,36 @@ const JobCard = ({ job, onDelete }) => {
         {...attributes}
         className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-grab active:cursor-grabbing mb-3 group relative z-10"
     >
-      
+
+      {/* --- TOMBOL AKSI (Muncul pas hover) --- */}
+      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {/* Tombol Edit */}
+        <button 
+            // onPointerDown biar ga bentrok sama drag n drop
+            onPointerDown={(e) => {
+                e.stopPropagation(); // Stop biar ga dikira mau nge-drag
+                onEdit();
+            }}
+            className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-md"
+        >
+            <FaPen size={10} />
+        </button>
+
+        {/* Tombol Delete */}
+        <button 
+            onPointerDown={(e) => {
+                e.stopPropagation(); 
+                onDelete(job.id);
+            }}
+            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md"
+        >
+            <FaTrash size={10} />
+        </button>
+      </div>
+      {/* ------------------------------------- */}
+
       {/* Header */}
-      <div className="flex justify-between items-start mb-2">
+      <div className="flex justify-between items-start mb-2 pr-6"> {/* pr-6 biar ga nabrak tombol */}
         <div>
             <h3 className="font-bold text-gray-800 text-sm">{job.position}</h3>
             <div className="flex items-center gap-1 text-xs text-gray-500 font-medium mt-0.5">
@@ -45,9 +72,6 @@ const JobCard = ({ job, onDelete }) => {
                 {job.company}
             </div>
         </div>
-        <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${getStatusColor(job.status)}`}>
-            {job.status}
-        </span>
       </div>
 
       {/* Footer */}
@@ -55,8 +79,10 @@ const JobCard = ({ job, onDelete }) => {
         <div className="flex items-center gap-1 text-xs text-gray-400">
             <FaMoneyBillWave /> {job.salary}
         </div>
-        <div className="flex items-center gap-1 text-[10px] text-gray-400">
-            <FaCalendarAlt /> {job.date}
+        <div className="flex items-center gap-2">
+             <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${getStatusColor(job.status)}`}>
+                {job.status}
+            </span>
         </div>
       </div>
     </div>
