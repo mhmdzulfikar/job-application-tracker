@@ -3,6 +3,7 @@ import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Analytics from "./pages/Analytics";
 import TailwindPlayground from "./pages/TailwindPlayground";
+import Warung from "./pages/Warung";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         
         {/* Kalau buka /tailwind, buka TailwindPlayground */}
         <Route path="tailwind" element={<TailwindPlayground />} />
+        <Route path="warung" element={<Warung />} />
         
         {/* Kalau buka /settings (belum ada file), kasih tulisan aja */}
         <Route path="settings" element={<div className="p-6">Halaman Settings (Soon)</div>} />
