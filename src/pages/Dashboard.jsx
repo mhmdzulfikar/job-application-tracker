@@ -51,6 +51,7 @@ export default function Dashboard() {
 
   // B. Logic Tambah / Edit Data (Jantung Aplikasi)
   // Fungsi ini dipanggil oleh Child (AddJobModal) saat tombol 'Simpan' ditekan.
+  // 6
   const handleSaveJob = (jobData) => {
     if (editingJob) {
       // --- JALUR EDIT (UPDATE) ---
@@ -62,7 +63,7 @@ export default function Dashboard() {
           job.id === editingJob.id ? { ...job, ...jobData } : job
         )
       );
-      setEditingJob(null); // Reset mode edit setelah selesai.
+      setEditingJob(null); // Reset mode edit setelah selesai. //7
     } else {
       // --- JALUR BARU (ADD) ---
       // User menambah data baru. Kita perlu bikin ID dan Tanggal baru manual.
@@ -157,6 +158,8 @@ export default function Dashboard() {
                     key={job.id}
                     job={job}
                     onDelete={handleDeleteJob}
+
+                    // 2
                     onEdit={() => openEditModal(job)} // Panggil fungsi helper edit
                   />
                 ))}
@@ -166,6 +169,8 @@ export default function Dashboard() {
 
         {/* Modal Form */}
         {/* Props Drilling: Kirim state & handler ke Anak */}
+
+        {/* 3 */}
         <AddJobModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}

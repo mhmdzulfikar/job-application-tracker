@@ -6,6 +6,7 @@ export default function CardTakjil({dataMenu, onEdit, onDelete}) {
         <h3 className="font-bold text-lg">{dataMenu.nama}</h3>
         <p className="text-gray-600 mb-4">Rp. {dataMenu.harga}</p>
 
+        {/* 1 */}
         <button 
         onClick={onEdit}
         className="px-3 py-1  hover:text-blue-500 hover:bg-blue-50 rounded-md"

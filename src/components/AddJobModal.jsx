@@ -25,6 +25,8 @@ export default function AddJobModal({ isOpen, onClose, onSave, initialData }) {
   // =========================================
   
   // Logic: Setiap kali Modal dibuka (isOpen true) ATAU initialData berubah...
+
+  // 4
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
@@ -41,6 +43,7 @@ export default function AddJobModal({ isOpen, onClose, onSave, initialData }) {
   // 3. HANDLERS
   // =========================================
 
+  // 5
   const handleSubmit = (e) => {
     e.preventDefault(); // Mencegah reload halaman browser
 

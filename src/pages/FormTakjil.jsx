@@ -7,6 +7,7 @@ export default function FormTakjil({ onSimpan, dataTitipan}) {
         harga: ""
     });
 
+    // 4
     useEffect(() => {
         if (dataTitipan) {
             setFormData(dataTitipan);
@@ -18,9 +19,10 @@ export default function FormTakjil({ onSimpan, dataTitipan}) {
         }
     }, [dataTitipan]);
 
+    // 5
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSimpan(formData);
+        onSimpan(formData); // Mengirim data ke parent (Warung.jsx)
         setFormData({
             nama:"",
             harga: ""

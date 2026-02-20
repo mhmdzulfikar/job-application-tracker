@@ -38,6 +38,8 @@ const JobCard = ({ job, onDelete, onEdit }) => {
 
       {/* --- TOMBOL AKSI (Muncul pas hover) --- */}
       <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+
+       {/* 1 */}
         {/* Tombol Edit */}
         <button 
             // onPointerDown biar ga bentrok sama drag n drop
@@ -49,6 +51,9 @@ const JobCard = ({ job, onDelete, onEdit }) => {
         >
             <FaPen size={10} />
         </button>
+
+
+
 
         {/* Tombol Delete */}
         <button 

@@ -12,16 +12,26 @@ export default function Warung() {
     ]);
 
 
+    //  6
     const handleSimpanMenu = (dataDariForm) => {
 
-        if (menuEdit) {
-               setDaftarMenu((prevMenu) => 
-            prevMenu.map((menuLama) => 
-            menuLama.id === menuEdit.id ? { ...menuLama, ...dataDariForm} : menuLama
-            )
-          );
+        // dataDariForm = {nama: "Es Kuwut", harga: 6000} (tanpa ID!)
 
-          setMenuEdit(null);
+    if (menuEdit) { 
+        // 1. Apakah kita lagi mode edit? YA. (Karena tadi di Langkah 1 kita set)
+
+        setDaftarMenu((prevMenu) => 
+            prevMenu.map((menuLama) => 
+                // 2. Kita cek satu-satu semua menu di database (prevMenu)
+                menuLama.id === menuEdit.id 
+                    
+                    ? { ...menuLama, ...dataDariForm} // 3. JIKA KETEMU ID YANG SAMA: update data lama dengan data baru dari form
+                    
+                    : menuLama // 4. JIKA BEDA: kembalikan data lama tanpa perubahan
+            )
+        );
+        setMenuEdit(null); // 5. Reset mode edit
+          
         } else {
             const menuBaru = {
                 ...dataDariForm,
@@ -47,6 +57,8 @@ export default function Warung() {
 
             <div className="mb-8 p-4 bg-white border rounded shadow">
                 <h2 className="font-bold mb-2">Papan Ketik (Form)</h2>
+
+                {/* 3 */}
                 <FormTakjil
                  onSimpan={handleSimpanMenu}
                  dataTitipan={menuEdit}
@@ -65,8 +77,8 @@ export default function Warung() {
                     <CardTakjil 
                         key={menu.id}
                         dataMenu={menu}
+                        // 2
                         onEdit={() => setMenuEdit(menu)}
-                        // 👇 KABEL INI LUPA LU COLOK BANG ZUL! 👇
                         onDelete={() => handleHapusMenu(menu.id)} 
                     />
                 ))}
