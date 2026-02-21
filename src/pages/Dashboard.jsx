@@ -28,7 +28,7 @@ export default function Dashboard() {
   const [editingJob, setEditingJob] = useState(null); // Menyimpan data job yang sedang diedit (null = mode add)
   const [searchTerm, setSearchTerm] = useState("");
   const [activeId, setActiveId] = useState(null); // Untuk animasi drag-and-drop
-
+ 
   // =========================================
   // 2. SIDE EFFECTS (PENJAGA)
   // =========================================
@@ -85,8 +85,8 @@ export default function Dashboard() {
     const { active, over } = event;
     if (!over) return; // Kalau didrop di luar kolom, batalkan.
 
-    const jobId = parseInt(active.id);
-    const newStatus = over.id; // ID kolom tujuan (misal: "Applied", "Interview")
+       const jobId = parseInt(active.id); // ID Kartu yang diangkat
+       const newStatus = over.id; // Nama Kolom tujuan (Status Baru)
 
     // Update status job yang digeser
     setJobs((prevJobs) =>
@@ -103,10 +103,21 @@ export default function Dashboard() {
     setIsModalOpen(true);
   };
 
+
   const openEditModal = (job) => {
     setEditingJob(job); // Simpan job yang mau diedit
     setIsModalOpen(true);
   };
+
+
+  const SearchJob = (job) => {
+    if (searchTerm === "") {
+      return true;
+    }
+
+    return job.company.toLowerCase().includes(searchTerm.toLowerCase());
+    
+  }
 
   // =========================================
   // 4. RENDERING (TAMPILAN)
