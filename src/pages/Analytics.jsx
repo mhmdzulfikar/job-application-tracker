@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaBriefcase, FaComments, FaTimesCircle, FaCheckCircle } from "react-icons/fa";
+import { FaBriefcase, FaComments, FaTimesCircle, FaCheckCircle  } from "react-icons/fa";
 
 export default function Analytics() {
   const [jobs, setJobs] = useState([]);
@@ -17,6 +17,7 @@ export default function Analytics() {
   const interviewCount = jobs.filter(j => j.status === "Interview").length;
   const rejectedCount = jobs.filter(j => j.status === "Rejected").length;
   const offerCount = jobs.filter(j => j.status === "Offer").length;
+  const appliedCount = jobs.filter(j => j.status === "Applied").length;
 
   // Hitung Win Rate (Interview / Total Lamaran * 100)
   // Kalau total 0, tulis 0 biar gak error (NaN)
@@ -27,7 +28,7 @@ export default function Analytics() {
       <h1 className="text-2xl font-bold text-gray-800 mb-6"> Laporan Perjuangan</h1>
 
       {/* Grid Kartu Statistik */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
         
         {/* KARTU 1: TOTAL */}
         <StatCard 
@@ -51,6 +52,20 @@ export default function Analytics() {
           value={rejectedCount} 
           icon={<FaTimesCircle />} 
           color="bg-red-100 text-red-600" 
+        />
+
+         <StatCard 
+          title="Dapat Penawaran" 
+          value={offerCount} 
+          icon={<FaCheckCircle />} 
+          color="bg-green-100 text-green-600" 
+        />
+
+         <StatCard 
+          title="Lamaran Terkirim" 
+          value={appliedCount} 
+          icon={<FaBriefcase />} 
+          color="bg-purple-100 text-purple-600" 
         />
 
         {/* KARTU 4: WIN RATE */}

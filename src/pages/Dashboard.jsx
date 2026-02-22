@@ -33,6 +33,14 @@ export default function Dashboard() {
   // 2. SIDE EFFECTS (PENJAGA)
   // =========================================
 
+
+  useEffect(() => {
+    const savedJobs = localStorage.getItem("magang-jobs");
+    if (savedJobs) {
+      setJobs(JSON.parse(savedJobs));
+    }
+  }, []); // <--- Kurung siku kosong artinya kerja sekali doang pas awal
+
   // Auto-Save: Setiap kali 'jobs' berubah, simpan ke LocalStorage biar data gak ilang pas refresh.
   useEffect(() => {
     localStorage.setItem("magang-jobs", JSON.stringify(jobs));
@@ -110,14 +118,14 @@ export default function Dashboard() {
   };
 
 
-  const SearchJob = (job) => {
-    if (searchTerm === "") {
-      return true;
-    }
+  // const SearchJob = (job) => {
+  //   if (searchTerm === "") {
+  //     return true;
+  //   }
 
-    return job.company.toLowerCase().includes(searchTerm.toLowerCase());
+  //   return job.company.toLowerCase().includes(searchTerm.toLowerCase());
     
-  }
+  // }
 
   // =========================================
   // 4. RENDERING (TAMPILAN)
@@ -162,7 +170,8 @@ export default function Dashboard() {
               {jobs
                 .filter((job) => job.status === colTitle) // Filter by Column
                 .filter((job) =>
-                  job.company.toLowerCase().includes(searchTerm.toLowerCase()) // Filter by Search
+                  job.company.toLowerCase().includes(searchTerm.toLowerCase()) || // Filter by Search 
+                  job.position.toLowerCase().includes(searchTerm.toLowerCase())
                 )
                 .map((job) => (
                   <JobCard

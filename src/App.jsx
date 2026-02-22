@@ -2,8 +2,8 @@ import { Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Analytics from "./pages/Analytics";
-import TailwindPlayground from "./pages/TailwindPlayground";
-import Warung from "./pages/Warung";
+import TailwindPlayground from "./pages/Latihan/TailwindPlayground";
+import Warung from "./pages/Latihan/Warung";
 
 function App() {
   return (

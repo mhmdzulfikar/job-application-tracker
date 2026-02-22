@@ -17,8 +17,8 @@ export default function Layout() {
     { name: "Board", path: "/", icon: <FaColumns size={20} /> },
     { name: "Analytics", path: "/analytics", icon: <FaChartPie size={20} /> },
     { name: "Settings", path: "/settings", icon: <FaCog size={20} /> },
-    { name: "Tailwind", path: "/tailwind", icon: <FaRocket size={20} /> },
-    { name: "Warung", path: "/warung", icon: <FaRocket size={20} /> },
+    // { name: "Tailwind", path: "/tailwind", icon: <FaRocket size={20} /> },
+    // { name: "Warung", path: "/warung", icon: <FaRocket size={20} /> },
   ];
 
   return (
