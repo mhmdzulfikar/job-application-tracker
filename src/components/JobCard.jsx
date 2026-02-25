@@ -33,7 +33,7 @@ const JobCard = ({ job, onDelete, onEdit }) => {
         style={style} 
         {...listeners} 
         {...attributes}
-        className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-grab active:cursor-grabbing mb-3 group relative z-10"
+        className="dark:bg-white p-4 rounded-xl shadow-sm border dark:border-gray-100 hover:shadow-md transition-all cursor-grab active:cursor-grabbing mb-3 group relative z-10"
     >
 
       {/* --- TOMBOL AKSI (Muncul pas hover) --- */}
@@ -47,12 +47,10 @@ const JobCard = ({ job, onDelete, onEdit }) => {
                 e.stopPropagation(); // Stop biar ga dikira mau nge-drag
                 onEdit();
             }}
-            className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-md"
+            className="p-1.5 dark:bg-gray-700 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-md"
         >
             <FaPen size={10} />
         </button>
-
-
 
 
         {/* Tombol Delete */}
@@ -61,7 +59,7 @@ const JobCard = ({ job, onDelete, onEdit }) => {
                 e.stopPropagation(); 
                 onDelete(job.id);
             }}
-            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md"
+            className="p-1.5 dark:bg-gray-700 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md"
         >
             <FaTrash size={10} />
         </button>
@@ -71,7 +69,7 @@ const JobCard = ({ job, onDelete, onEdit }) => {
       {/* Header */}
       <div className="flex justify-between items-start mb-2 pr-6"> {/* pr-6 biar ga nabrak tombol */}
         <div>
-            <h3 className="font-bold text-gray-800 text-sm">{job.position}</h3>
+            <h3 className="font-bold text-gray-800  text-sm">{job.position}</h3>
             <div className="flex items-center gap-1 text-xs text-gray-500 font-medium mt-0.5">
                 <FaBuilding className="text-gray-400" />
                 {job.company}

@@ -4,7 +4,7 @@ import { initialJobs, columns } from "../data/initialData";
 import JobCard from "../components/JobCard";
 import KanbanColumn from "../components/KanbanColumn";
 import AddJobModal from "../components/AddJobModal";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaMagnifyingGlass } from "react-icons/fa6"; 
 
 export default function Dashboard() {
   // =========================================
@@ -32,14 +32,6 @@ export default function Dashboard() {
   // =========================================
   // 2. SIDE EFFECTS (PENJAGA)
   // =========================================
-
-
-  useEffect(() => {
-    const savedJobs = localStorage.getItem("magang-jobs");
-    if (savedJobs) {
-      setJobs(JSON.parse(savedJobs));
-    }
-  }, []); // <--- Kurung siku kosong artinya kerja sekali doang pas awal
 
   // Auto-Save: Setiap kali 'jobs' berubah, simpan ke LocalStorage biar data gak ilang pas refresh.
   useEffect(() => {
@@ -140,18 +132,28 @@ export default function Dashboard() {
             <p className="text-sm text-gray-500">Geser kartu untuk update status.</p>
           </div>
 
-          <div className="flex gap-4">
-            <input
-              type="text"
-              placeholder="Cari perusahaan..."
-              className="p-2 border border-gray-300 rounded-lg w-full max-w-xs outline-none focus:ring-2 focus:ring-indigo-500"
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          <div className="flex gap-4" > 
+            <div className="relative w-full max-w-xs">
+                <input
+                  type="text"
+                  placeholder="Cari perusahaan..."
+                  value={searchTerm} // Pastikan value terikat ke state
+                  className="py-4 px-6 border border-gray-300 rounded-lg w-full outline-none focus:ring-2 focus:ring-indigo-500"
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+
+                {/* Ikon hanya muncul JIKA searchTerm kosong */}
+                {!searchTerm && (
+                  <FaMagnifyingGlass 
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" 
+                  />
+                )}
+              </div>
             
             {/* Tombol New Job */}
             <button
               onClick={openAddModal}
-              className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 shadow-lg transition-all"
+              className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 shadow-lg transition-all"
             >
               <FaPlus /> New Job
             </button>
