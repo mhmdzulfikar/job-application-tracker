@@ -128,8 +128,8 @@ export default function Dashboard() {
         {/* Header Dashboard */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">Kanban Board</h1>
-            <p className="text-sm text-gray-500">Geser kartu untuk update status.</p>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">Kanban Board</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Geser kartu untuk update status.</p>
           </div>
 
           <div className="flex gap-4" > 

@@ -18,7 +18,7 @@ const JobCard = ({ job, onDelete, onEdit }) => {
 
   const getStatusColor = (status) => {
     switch(status) {
-        case 'Interview': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+        case 'Interview': return 'bg-yellow-100 text-yellow-700 border-yellow-200 ';
         case 'Offer': return 'bg-green-100 text-green-700 border-green-200';
         case 'Rejected': return 'bg-red-100 text-red-700 border-red-200';
         default: return 'bg-gray-100 text-gray-600 border-gray-200';
@@ -33,7 +33,7 @@ const JobCard = ({ job, onDelete, onEdit }) => {
         style={style} 
         {...listeners} 
         {...attributes}
-        className="dark:bg-white p-4 rounded-xl shadow-sm border dark:border-gray-100 hover:shadow-md transition-all cursor-grab active:cursor-grabbing mb-3 group relative z-10"
+        className="dark:bg-white p-4 rounded-xl bg-gray-300 shadow-sm border dark:border-gray-300 hover:shadow-md transition-all cursor-grab active:cursor-grabbing mb-3 group relative z-10"
     >
 
       {/* --- TOMBOL AKSI (Muncul pas hover) --- */}
@@ -47,7 +47,7 @@ const JobCard = ({ job, onDelete, onEdit }) => {
                 e.stopPropagation(); // Stop biar ga dikira mau nge-drag
                 onEdit();
             }}
-            className="p-1.5 dark:bg-gray-700 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-md"
+            className="p-1.5 bg-white dark:bg-gray-700 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-md"
         >
             <FaPen size={10} />
         </button>
@@ -59,7 +59,7 @@ const JobCard = ({ job, onDelete, onEdit }) => {
                 e.stopPropagation(); 
                 onDelete(job.id);
             }}
-            className="p-1.5 dark:bg-gray-700 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md"
+            className="p-1.5 bg-white dark:bg-gray-700 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md"
         >
             <FaTrash size={10} />
         </button>
@@ -78,8 +78,8 @@ const JobCard = ({ job, onDelete, onEdit }) => {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-50">
-        <div className="flex items-center gap-1 text-xs text-gray-400">
+      <div className="flex items-center justify-between mt-3 pt-3 border-t dark:border-gray-500 border-white">
+        <div className="flex items-center gap-1 text-xs text-gray-500">
             <FaMoneyBillWave /> {job.salary}
         </div>
         <div className="flex items-center gap-2">
