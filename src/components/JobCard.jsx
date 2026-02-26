@@ -1,10 +1,10 @@
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities"; // 2. Buat animasi gerak
-import { FaBuilding, FaMoneyBillWave, FaCalendarAlt, FaPen, FaTrash } from "react-icons/fa";
+import { FaBuilding, FaMoneyBillWave, FaCalendarAlt, FaPen, FaTrash, FaEye } from "react-icons/fa";
 
 
 
-const JobCard = ({ job, onDelete, onEdit }) => {
+const JobCard = ({ job, onDelete, onEdit, onCardClick }) => {
   // 3. Pasang Hook useDraggable
   // id: KTP kartu ini biar sistem tau siapa yang lagi diangkat
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
@@ -33,8 +33,50 @@ const JobCard = ({ job, onDelete, onEdit }) => {
         style={style} 
         {...listeners} 
         {...attributes}
+
+        
         className="dark:bg-white p-4 rounded-xl bg-gray-300 shadow-sm border dark:border-gray-300 hover:shadow-md transition-all cursor-grab active:cursor-grabbing mb-3 group relative z-10"
     >
+
+      {/* --- TOMBOL AKSI (Muncul pas hover) --- */}
+      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+
+        {/* 1. TOMBOL DETAIL CARD */}
+        <button 
+            onPointerDown={(e) => {
+                e.stopPropagation(); // Stop biar ga dikira mau nge-drag
+                onCardClick(job); // Buka Pop-Up Detail!
+            }}
+            className="p-1.5 text-gray-400 hover:text-green-500 hover:bg-green-50 dark:hover:text-green-400  rounded-md"
+            title="Lihat Detail"
+        >
+            <FaEye size={10} />
+        </button>
+
+        {/* 2. Tombol Edit */}
+        <button 
+            onPointerDown={(e) => {
+                e.stopPropagation(); 
+                onEdit();
+            }}
+            className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/50 rounded-md"
+            title="Edit Cepat"
+        >
+            <FaPen size={10} />
+        </button>
+
+        {/* 3. Tombol Delete */}
+        <button 
+            onPointerDown={(e) => {
+                e.stopPropagation(); 
+                onDelete(job.id);
+            }}
+            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-900/50 rounded-md"
+            title="Hapus Lamaran"
+        >
+            <FaTrash size={10} />
+        </button>
+      </div>
 
       {/* --- TOMBOL AKSI (Muncul pas hover) --- */}
       <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -47,7 +89,7 @@ const JobCard = ({ job, onDelete, onEdit }) => {
                 e.stopPropagation(); // Stop biar ga dikira mau nge-drag
                 onEdit();
             }}
-            className="p-1.5 bg-white dark:bg-gray-700 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-md"
+            className="p-1.5  text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-md"
         >
             <FaPen size={10} />
         </button>
@@ -59,7 +101,7 @@ const JobCard = ({ job, onDelete, onEdit }) => {
                 e.stopPropagation(); 
                 onDelete(job.id);
             }}
-            className="p-1.5 bg-white dark:bg-gray-700 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md"
+            className="p-1.5  text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md"
         >
             <FaTrash size={10} />
         </button>

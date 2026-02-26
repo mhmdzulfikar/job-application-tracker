@@ -233,7 +233,7 @@ export default function Analytics() {
             </table>
         </div>
       </div>
-      </div>
+    </div>
   );
 }
 

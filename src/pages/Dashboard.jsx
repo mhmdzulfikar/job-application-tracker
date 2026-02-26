@@ -5,6 +5,7 @@ import JobCard from "../components/JobCard";
 import KanbanColumn from "../components/KanbanColumn";
 import AddJobModal from "../components/AddJobModal";
 import { FaPlus, FaMagnifyingGlass } from "react-icons/fa6"; 
+import JobModal from "../components/JobModal";
 
 export default function Dashboard() {
   // =========================================
@@ -28,6 +29,7 @@ export default function Dashboard() {
   const [editingJob, setEditingJob] = useState(null); // Menyimpan data job yang sedang diedit (null = mode add)
   const [searchTerm, setSearchTerm] = useState("");
   const [activeId, setActiveId] = useState(null); // Untuk animasi drag-and-drop
+  const [selectedJob, setSelectedJob] = useState(null);
  
   // =========================================
   // 2. SIDE EFFECTS (PENJAGA)
@@ -119,9 +121,13 @@ export default function Dashboard() {
     
   // }
 
-  // =========================================
-  // 4. RENDERING (TAMPILAN)
-  // =========================================
+  const handleSaveJobDetails = (updatedJob) => {
+    // Cari kartu yang lama, ganti sama kartu yang baru diedit
+    const newJobs = jobs.map(j => j.id === updatedJob.id ? updatedJob : j);
+    setJobs(newJobs);
+    localStorage.setItem("magang-jobs", JSON.stringify(newJobs)); // Update ke Gudang
+};
+
   return (
     <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
       <div className="p-6 h-full flex flex-col">
@@ -181,6 +187,7 @@ export default function Dashboard() {
                     job={job}
                     onDelete={handleDeleteJob}
 
+                    onCardClick={() => setSelectedJob(job)}
                     // 2
                     onEdit={() => openEditModal(job)} // Panggil fungsi helper edit
                   />
@@ -200,6 +207,15 @@ export default function Dashboard() {
           initialData={editingJob}
         />
       </div>
+
+      {/* KALAU ADA KARTU YANG DIKLIK, MUNCULIN MODAL */}
+      {selectedJob && (
+          <JobModal 
+              job={selectedJob} 
+              onClose={() => setSelectedJob(null)} 
+              onSave={handleSaveJobDetails} 
+          />
+      )}
     </DndContext>
   );
 }
