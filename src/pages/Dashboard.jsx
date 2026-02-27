@@ -6,6 +6,7 @@ import KanbanColumn from "../components/KanbanColumn";
 import AddJobModal from "../components/AddJobModal";
 import { FaPlus, FaMagnifyingGlass } from "react-icons/fa6"; 
 import JobModal from "../components/JobModal";
+import EmptyState from "../components/EmptyState";
 
 export default function Dashboard() {
   // =========================================
@@ -121,6 +122,7 @@ export default function Dashboard() {
     
   // }
 
+  // E. Logic Simpan Detail Edit dari Modal JobModal
   const handleSaveJobDetails = (updatedJob) => {
     // Cari kartu yang lama, ganti sama kartu yang baru diedit
     const newJobs = jobs.map(j => j.id === updatedJob.id ? updatedJob : j);
@@ -167,34 +169,46 @@ export default function Dashboard() {
         </div>
 
         {/* Kanban Columns Container */}
-        <div className="flex gap-4 overflow-x-auto pb-4 h-full items-start">
-          {columns.map((colTitle) => (
-            <KanbanColumn
-              key={colTitle}
-              id={colTitle}
-              title={colTitle}
-              count={jobs.filter((j) => j.status === colTitle).length}
-            >
-              {jobs
-                .filter((job) => job.status === colTitle) // Filter by Column
-                .filter((job) =>
-                  job.company.toLowerCase().includes(searchTerm.toLowerCase()) || // Filter by Search 
-                  job.position.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-                .map((job) => (
-                  <JobCard
-                    key={job.id}
-                    job={job}
-                    onDelete={handleDeleteJob}
-
-                    onCardClick={() => setSelectedJob(job)}
-                    // 2
-                    onEdit={() => openEditModal(job)} // Panggil fungsi helper edit
-                  />
+       {/* Kanban Columns Container ATAU Empty State */}
+        {jobs.length === 0 ? (
+            // JIKA KOSONG: Munculin Empty State di tengah layar
+            <div className="flex-1 flex items-center justify-center">
+                <EmptyState 
+                    title="Papan Kanban Masih Kosong"
+                    message="Lu belum masukin data lamaran sama sekali. Yuk mulai catat perjuangan lu nembus perusahaan impian!"
+                    actionText="+ Tambah Lamaran Perdana"
+                    onAction={openAddModal} 
+                />
+            </div>
+        ) : (
+            // JIKA ADA ISINYA: Munculin Papan Kanban beserta kolom-kolomnya
+            <div className="flex gap-4 overflow-x-auto pb-4 h-full items-start">
+                {columns.map((colTitle) => (
+                    <KanbanColumn
+                        key={colTitle}
+                        id={colTitle}
+                        title={colTitle}
+                        count={jobs.filter((j) => j.status === colTitle).length}
+                    >
+                        {jobs
+                            .filter((job) => job.status === colTitle) // Filter by Column
+                            .filter((job) =>
+                                job.company.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                job.position.toLowerCase().includes(searchTerm.toLowerCase())
+                            )
+                            .map((job) => (
+                                <JobCard
+                                    key={job.id}
+                                    job={job}
+                                    onDelete={handleDeleteJob}
+                                    onCardClick={() => setSelectedJob(job)}
+                                    onEdit={() => openEditModal(job)} 
+                                />
+                            ))}
+                    </KanbanColumn>
                 ))}
-            </KanbanColumn>
-          ))}
-        </div>
+            </div>
+        )}
 
         {/* Modal Form */}
         {/* Props Drilling: Kirim state & handler ke Anak */}
