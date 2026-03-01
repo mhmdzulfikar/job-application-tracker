@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import Analytics from "./pages/Analytics";
 import TailwindPlayground from "./pages/Latihan/TailwindPlayground";
 import Warung from "./pages/Latihan/Warung";
+import Settings from "./pages/Settings";
 
 function App() {
   return (
@@ -21,7 +22,7 @@ function App() {
         <Route path="warung" element={<Warung />} />
         
         {/* Kalau buka /settings (belum ada file), kasih tulisan aja */}
-        <Route path="settings" element={<div className="p-6">Halaman Settings (Soon)</div>} />
+        <Route path="settings" element={<Settings />} />
       </Route>
     </Routes>
   );

@@ -6,7 +6,9 @@ import KanbanColumn from "../components/KanbanColumn";
 import AddJobModal from "../components/AddJobModal";
 import JobModal from "../components/JobModal";
 import EmptyState from "../components/EmptyState";
-import { FaPlus, FaMagnifyingGlass, FaBell } from "react-icons/fa6";
+import { FaPlus, FaMagnifyingGlass, FaBell, FaRocket } from "react-icons/fa6";
+import toast, { Toaster } from "react-hot-toast";
+
 
 export default function Dashboard() {
 
@@ -45,6 +47,8 @@ export default function Dashboard() {
   const handleDeleteJob = (id) => {
     if (window.confirm("Yakin mau hapus lamaran ini?")) {
       setJobs((prev) => prev.filter((job) => job.id !== id));
+
+      toast.success("Lamaran berhasil dihapus! ");
     }
   };
 
@@ -57,6 +61,7 @@ export default function Dashboard() {
         )
       );
       setEditingJob(null);
+      toast.success("Perubahan berhasil disimpan! ");
     } else {
       // ADD MODE
       const newJob = {
@@ -65,6 +70,8 @@ export default function Dashboard() {
         date: new Date().toLocaleDateString("id-ID"),
       };
       setJobs((prev) => [newJob, ...prev]);
+
+      toast.success("Lamaran perdana berhasil ditambah! ");
     }
 
     setIsModalOpen(false);
@@ -106,6 +113,7 @@ export default function Dashboard() {
         j.id === updatedJob.id ? updatedJob : j
       )
     );
+    toast.success("Catatan rahasia di-update! ");
   };
 
   // =========================================
@@ -130,16 +138,33 @@ export default function Dashboard() {
     return targetDate.getTime() === today.getTime();
   });
 
+ 
+
   // =========================================
   // 5. RENDER
   // =========================================
 
   return (
+   <>
+
+   <Toaster 
+        position="top-right" 
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#333',
+            color: '#fff',
+            borderRadius: '10px',
+          },
+        }} 
+      />
+
+
     <DndContext
       onDragEnd={handleDragEnd}
       onDragStart={handleDragStart}
     >
-      <div className="p-6 h-full flex flex-col">
+      <div className="p-6 h-full flex flex-col ">
         
         {/* BANNER INTERVIEW (Udah dipindah ke dalem sini biar layoutnya rapi) */}
         {todayInterviews.length > 0 && (
@@ -176,7 +201,7 @@ export default function Dashboard() {
         )}
 
         {/* HEADER */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-6 md:flex-row md:justify-between md:items-center gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
               Kanban Board
@@ -186,8 +211,8 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div className="flex gap-4">
-            <div className="relative w-full max-w-xs">
+          <div className="flex gap-4 flex-col sm:flex-col w-full md:w-auto">
+            <div className="relative w-full max-w-xs md:w-64">
               <input
                 type="text"
                 placeholder="Cari perusahaan..."
@@ -203,10 +228,36 @@ export default function Dashboard() {
 
             <button
               onClick={openAddModal}
-              className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 shadow-lg transition-all shrink-0"
+              className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 shadow-lg transition-all shrink-0 sm:w-auto"
             >
               <FaPlus /> New Job
             </button>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-3 shadow-sm flex items-center gap-4 animate-fade-in">
+             <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400">
+                <FaRocket size={14} />
+             </div>
+             <div className="flex-1">
+                <div className="flex justify-between items-center mb-1.5">
+                    <span className="text-xs font-bold text-gray-700 dark:text-gray-300">Target Lamaran Mingguan</span>
+                    <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                        {jobs.length} / 10
+                    </span>
+                </div>
+                {/* Garis Progress Bar */}
+                <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                    <div 
+                        className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full transition-all duration-1000 ease-out" 
+                        style={{ width: `${Math.min((jobs.length / 10) * 100, 100)}%` }}
+                    ></div>
+                </div>
+             </div>
+             {jobs.length >= 10 && (
+                <div className="hidden sm:block text-xs font-bold text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded">
+                    Target Tercapai! 🎉
+                </div>
+             )}
           </div>
         </div>
 
@@ -272,5 +323,8 @@ export default function Dashboard() {
         />
       )}
     </DndContext>
+    </>
   );
+  
 }
+

@@ -1,17 +1,30 @@
 import { useState, useEffect } from "react";
 import { Outlet, NavLink } from "react-router-dom";
+import OnboardingModal from "./OnboardingModal";
 import { 
   FaColumns, 
   FaChartPie, 
   FaCog, 
   FaChevronLeft, 
   FaChevronRight, 
-  FaRocket 
+  FaRocket,
+  FaUserAstronaut,
+  FaBars,
+  FaTimes
 } from "react-icons/fa";
+import { IoTodayOutline } from "react-icons/io5";
 
 export default function Layout() {
-  const [isOpen, setIsOpen] = useState(true);
+  // 1. STATE MANAGEMENT
+  // Cek ingatan Sidebar pas pertama kali load
+  const [isOpen, setIsOpen] = useState(() => {
+    const savedSidebar = localStorage.getItem("sidebar-open");
+    return savedSidebar !== null ? JSON.parse(savedSidebar) : true;
+  });
+  
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false); // State khusus HP
+  const [streak, setStreak] = useState(0);
 
   const menus = [
     { name: "Board", path: "/", icon: <FaColumns size={20} /> },
@@ -19,7 +32,12 @@ export default function Layout() {
     { name: "Settings", path: "/settings", icon: <FaCog size={20} /> },
   ];
 
-  // Pekerja Pagi: Cek Gudang pas web baru dibuka
+  const [userProfile, setUserProfile] = useState(() => {
+    const saved = localStorage.getItem("magang-profile");
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  // 2. SIDE EFFECTS (Pekerja Pagi)
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark") {
@@ -31,7 +49,33 @@ export default function Layout() {
     }
   }, []);
 
-  // Tombol Saklar buat diklik
+  // Simpan posisi Sidebar setiap kali diklik
+  useEffect(() => {
+    localStorage.setItem("sidebar-open", JSON.stringify(isOpen));
+  }, [isOpen]);
+
+  useEffect(() => {
+   const today = new Date().toDateString();
+   const storedGamification = JSON.parse(localStorage.getItem('magang-gemification') || '{"streak": 0, "lastDate": null}');
+
+   if (storedGamification.lastDate !== today) {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (storedGamification.lastDate === yesterday.toDateString()){
+      storedGamification.streak += 1;
+    } else {
+      storedGamification.streak = 1;
+    }
+
+    storedGamification.lastDate = today;
+    localStorage.setItem('magang-gamification', JSON.stringify(storedGamification));
+   }
+
+   setStreak(storedGamification.streak);
+  }, []);
+
+  // 3. HANDLERS
   const toggleDarkMode = () => {
     if (isDarkMode) {
       setIsDarkMode(false);
@@ -45,84 +89,135 @@ export default function Layout() {
   };
 
   return (
-    // Tambahin transisi dan dark:bg-gray-900 biar layarnya ikut gelap
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 overflow-hidden">
       
+      {/* KEMBALIKAN MODAL ONBOARDING LU YANG HILANG */}
+      <OnboardingModal onComplete={(profile) => setUserProfile(profile)} />
+
+      {/* --- OVERLAY UNTUK HP (Gelapin layar pas menu kebuka) --- */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 md:hidden backdrop-blur-sm"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
       {/* --- SIDEBAR --- */}
       <aside 
-        className={`bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 hidden md:flex flex-col transition-all duration-300 ease-in-out
-        ${isOpen ? "w-64" : "w-20"} 
+        className={`fixed md:relative z-40 h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 ease-in-out
+        ${isMobileOpen ? "translate-x-0 w-64" : "-translate-x-full md:translate-x-0"} 
+        ${isOpen ? "md:w-64" : "md:w-20"} 
         `} 
       >
-        
-        {/* HEADER & TOGGLE BUTTON */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-100 dark:border-gray-700">
-          {isOpen && (
-             <h1 className="text-xl font-bold text-indigo-600 dark:text-indigo-400 truncate animate-fade-in">
-               MagangHunter
-             </h1>
-          )}
+        {/* HEADER SIDEBAR & TOGGLE BUTTON */}
+        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-100 dark:border-gray-700 shrink-0">
+          {/* Di HP selalu muncul teksnya, di Desktop ikut state isOpen */}
+          <h1 className={`text-xl font-bold text-indigo-600 dark:text-indigo-400 truncate transition-opacity duration-300
+            ${!isOpen && "md:opacity-0 md:hidden"}
+          `}>
+            MagangHunter
+          </h1>
 
-          {/* TOMBOL PENGENDALI KIRI/KANAN */}
+          {/* Tombol Panah Kiri/Kanan (Cuma muncul di Desktop) */}
           <button 
             onClick={() => setIsOpen(!isOpen)} 
-            className="p-1.5 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-500 dark:text-gray-300 hover:text-indigo-600 transition-colors"
+            className="hidden md:block p-1.5 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-500 dark:text-gray-300 hover:text-indigo-600 transition-colors shrink-0"
           >
             {isOpen ? <FaChevronLeft /> : <FaChevronRight />}
+          </button>
+
+          {/* Tombol Close (Cuma muncul di HP) */}
+          <button 
+            onClick={() => setIsMobileOpen(false)}
+            className="md:hidden p-1.5 text-gray-500 dark:text-gray-300"
+          >
+            <FaTimes size={20} />
           </button>
         </div>
 
         {/* MENU ITEMS */}
-        <nav className="flex-1 px-3 py-6 space-y-2 flex flex-col">
+        <nav className="flex-1 px-3 py-6 space-y-2 flex flex-col overflow-y-auto custom-scrollbar">
           {menus.map((menu) => (
             <NavLink
               key={menu.name}
               to={menu.path}
+              onClick={() => setIsMobileOpen(false)} // Kalau di HP, pas menu diklik otomatis nutup sidebar
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-3 rounded-xl transition-all font-medium overflow-hidden whitespace-nowrap
                 ${isActive 
                     ? "bg-indigo-50 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 shadow-sm" 
                     : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100"
                 }
-                ${!isOpen && "justify-center"} 
+                ${!isOpen && "md:justify-center"} 
                 ` 
               }
             >
-              <div>{menu.icon}</div>
+              <div className="shrink-0">{menu.icon}</div>
               
-              {/* Teks Menu */}
-              <span className={`transition-opacity duration-200 ${isOpen ? "opacity-100" : "opacity-0 w-0 hidden"}`}>
+              <span className={`transition-opacity duration-200 
+                ${isOpen ? "opacity-100" : "md:opacity-0 md:w-0 md:hidden"}
+              `}>
                 {menu.name}
               </span>
             </NavLink>
           ))}
 
-          {/* --- TOMBOL DARK MODE (DIPINDAH KE SINI) --- */}
+          {/* TOMBOL DARK MODE */}
           <button
             onClick={toggleDarkMode}
             className={`flex items-center gap-3 px-3 py-3 mt-auto rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors
-            ${!isOpen && "justify-center"}
+            ${!isOpen && "md:justify-center"}
             `}
           >
-            <span className="text-xl">
+            <span className="text-xl shrink-0">
               {isDarkMode ? "☀️" : "🌙"}
             </span>
-            <span className={`font-medium whitespace-nowrap transition-opacity duration-200 ${isOpen ? "opacity-100" : "opacity-0 w-0 hidden"}`}>
+            <span className={`font-medium whitespace-nowrap transition-opacity duration-200 
+                ${isOpen ? "opacity-100" : "md:opacity-0 md:w-0 md:hidden"}
+            `}>
               {isDarkMode ? "Mode Terang" : "Mode Gelap"}
             </span>
           </button>
         </nav>
 
-        {/* STATUS CARD */}
-        <div className="p-4 border-t border-gray-100 dark:border-gray-700">
+        {/* STATUS CARD / PROFIL */}
+        <div className="p-4 border-t border-gray-100 dark:border-gray-700 shrink-0">
+            <div className={`mb-3 transition-all duration-300 ${!isOpen && "md:hidden"}`}> 
+                {userProfile ? (
+                    <div className="bg-indigo-50 dark:bg-gray-800 p-4 rounded-xl border border-indigo-100 dark:border-gray-700 flex items-center gap-3 shadow-sm">
+                        <div className="bg-indigo-500 text-white p-2.5 rounded-lg flex-shrink-0">
+                            <FaUserAstronaut />
+                        </div>
+                        <div className="overflow-hidden">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Semangat,</p>
+                            <p className="text-sm font-bold text-gray-900 dark:text-white truncate" title={userProfile.name}>
+                                {userProfile.name}
+                            </p>
+                            <p className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold truncate mt-0.5">
+                                Target: {userProfile.role}
+                            </p>
+
+                            <div className="flex items-center gap-1 mt-1 bg-orange-100 dark:bg-orange-900/40 px-2 py-0.5 rounded-md w-fit border border-orange-200 dark:border-orange-800/50">
+                                <span className="text-[10px]">🔥</span>
+                                <span className="text-[10px] font-bold text-orange-600 dark:text-orange-400">
+                                    {streak} Hari Streak!
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="h-16 w-full bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse"></div>
+                )}
+            </div>
+
             {isOpen ? (
-                <div className="bg-indigo-50 dark:bg-indigo-900/30 rounded-xl p-4 animate-fade-in">
+                <div className="bg-indigo-50 dark:bg-indigo-900/30 rounded-xl p-4 animate-fade-in w-full md:block hidden">
                     <p className="text-xs font-semibold text-indigo-500 dark:text-indigo-400 uppercase">Status</p>
                     <p className="text-sm text-gray-700 dark:text-gray-300 font-bold mt-1">Ready to Work </p>
                 </div>
             ) : (
-                <div className="flex justify-center">
-                    <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center text-indigo-500 dark:text-indigo-400">
+                <div className="hidden md:flex justify-center">
+                    <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center text-indigo-500 dark:text-indigo-400 cursor-pointer" title="Ready to Work">
                         <FaRocket />
                     </div>
                 </div>
@@ -130,10 +225,28 @@ export default function Layout() {
         </div>
       </aside>
 
-      {/* --- KONTEN KANAN --- */}
-      <main className="flex-1 overflow-y-auto transition-all duration-300">
-        <Outlet />
-      </main>
+      {/* --- KONTEN UTAMA --- */}
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        {/* HEADER KHUSUS HP (Cuma muncul di layar kecil) */}
+        <header className="md:hidden h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 shrink-0">
+          <div className="flex items-center gap-2">
+            <FaRocket className="text-indigo-600 dark:text-indigo-400" size={20} />
+            <h1 className="text-lg font-bold text-gray-900 dark:text-white">MagangHunter</h1>
+          </div>
+          <button 
+            onClick={() => setIsMobileOpen(true)}
+            className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+          >
+            <FaBars size={20} />
+          </button>
+        </header>
+
+        {/* AREA KERJA (Dashboard / Analytics) */}
+        <main className="flex-1 overflow-y-auto">
+          <Outlet />
+        </main>
+      </div>
 
     </div>
   );
