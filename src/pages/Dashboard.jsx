@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { DndContext } from "@dnd-kit/core";
-import { initialJobs, columns } from "../data/initialData";
+import { columns } from "../data/initialData";
 import JobCard from "../components/JobCard";
 import KanbanColumn from "../components/KanbanColumn";
 import AddJobModal from "../components/AddJobModal";
@@ -17,14 +17,10 @@ export default function Dashboard() {
   // =========================================
 
   const [jobs, setJobs] = useState(() => {
-    try {
-      const saved = localStorage.getItem("magang-jobs");
-      return saved ? JSON.parse(saved) : (initialJobs || []);
-    } catch (error) {
-      console.error("Gagal baca LocalStorage.", error);
-      return initialJobs || [];
-    }
-  });
+  const savedJobs = localStorage.getItem("magang-jobs");
+  // Kalau LocalStorage kosong, kasih Array Kosong [] !!
+  return savedJobs ? JSON.parse(savedJobs) : []; 
+});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
@@ -211,7 +207,7 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div className="flex gap-4 flex-col sm:flex-col w-full md:w-auto">
+          <div className="flex gap-4 flex-col lg:flex-row-reverse sm:flex-col w-full md:flex-row">
             <div className="relative w-full max-w-xs md:w-64">
               <input
                 type="text"
@@ -232,9 +228,8 @@ export default function Dashboard() {
             >
               <FaPlus /> New Job
             </button>
-          </div>
 
-          <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-3 shadow-sm flex items-center gap-4 animate-fade-in">
+            <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-3 shadow-sm flex items-center gap-2 animate-fade-in">
              <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400">
                 <FaRocket size={14} />
              </div>
@@ -259,6 +254,9 @@ export default function Dashboard() {
                 </div>
              )}
           </div>
+          </div>
+
+          
         </div>
 
         {/* EMPTY OR KANBAN */}
