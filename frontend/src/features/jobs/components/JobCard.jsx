@@ -97,6 +97,8 @@ const JobCard = ({ job, onDelete, onEdit, onCardClick }) => {
         >
             <FaTrash size={12} />
         </button>
+
+        
       </div>
       {/* ------------------------------------- */}
 

@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Outlet, NavLink } from "react-router-dom";
-import OnboardingModal from "./OnboardingModal";
+import OnboardingModal from "../../features/jobs/components/OnboardingModal";
+import api from "../../lib/axios"; 
+
 import { 
   FaColumns, 
   FaChartPie, 
@@ -12,51 +14,63 @@ import {
   FaBars,
   FaTimes
 } from "react-icons/fa";
-import { IoTodayOutline } from "react-icons/io5";
 
 export default function Layout() {
   // 1. STATE MANAGEMENT
-  // Cek ingatan Sidebar pas pertama kali load
   const [isOpen, setIsOpen] = useState(() => {
     const savedSidebar = localStorage.getItem("sidebar-open");
     return savedSidebar !== null ? JSON.parse(savedSidebar) : true;
   });
   
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isMobileOpen, setIsMobileOpen] = useState(false); // State khusus HP
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [streak, setStreak] = useState(0);
 
+  // 👇 2. State Profil (Awalnya kosong, nanti diisi dari Backend)
+  const [userProfile, setUserProfile] = useState(null);
+
   const menus = [
-    { name: "Board", path: "/", icon: <FaColumns size={20} /> },
+    { name: "Board", path: "/dashboard", icon: <FaColumns size={20} /> },
     { name: "Analytics", path: "/analytics", icon: <FaChartPie size={20} /> },
     { name: "Settings", path: "/settings", icon: <FaCog size={20} /> },
   ];
 
-  const [userProfile, setUserProfile] = useState(() => {
-    const saved = localStorage.getItem("magang-profile");
-    return saved ? JSON.parse(saved) : null;
-  });
-
-  // 2. SIDE EFFECTS (Pekerja Pagi)
+  // ==========================================
+  // 3. AMBIL DATA PROFIL DARI CLOUD (BACKEND)
+  // ==========================================
+  // Logic-nya: Pas halaman pertama kali diload, kita nanya ke server, "Siapa nama user yang lagi login?"
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
-      setIsDarkMode(true);
-      document.documentElement.classList.add("dark");
-    } else {
-      setIsDarkMode(false);
-      document.documentElement.classList.remove("dark");
-    }
-  }, []);
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem("token"); // Cek tiket masuk di browser
+        if (!token) return; // Kalau ga ada tiket, yaudah ga usah nanya server
 
-  // Simpan posisi Sidebar setiap kali diklik
+        // Suruh kurir nembak API
+        const response = await api.get('/auth/profile', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        // Tangkep datanya dan masukin ke State React biar tampil di Sidebar
+        setUserProfile({
+            name: response.data.user.name,
+            role: response.data.user.target_role // Inget, nama kolom di DB kita itu 'target_role'
+        });
+
+      } catch (error) {
+        console.error("Gagal ngambil profil di Layout:", error);
+      }
+    };
+
+    fetchProfile(); // Jalanin fungsinya
+  }, []); // [] artinya cuma dijalanin sekali pas halaman pertama dirender
+
   useEffect(() => {
     localStorage.setItem("sidebar-open", JSON.stringify(isOpen));
   }, [isOpen]);
 
   useEffect(() => {
    const today = new Date().toDateString();
-   const storedGamification = JSON.parse(localStorage.getItem('magang-gemification') || '{"streak": 0, "lastDate": null}');
+   const storedGamification = JSON.parse(localStorage.getItem('magang-gamification') || '{"streak": 0, "lastDate": null}');
 
    if (storedGamification.lastDate !== today) {
     const yesterday = new Date();
@@ -75,7 +89,18 @@ export default function Layout() {
    setStreak(storedGamification.streak);
   }, []);
 
-  // 3. HANDLERS
+   // 4. SIDE EFFECTS LAINNYA
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      setIsDarkMode(true);
+      document.documentElement.classList.add("dark");
+    } else {
+      setIsDarkMode(false);
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+
   const toggleDarkMode = () => {
     if (isDarkMode) {
       setIsDarkMode(false);
@@ -91,10 +116,15 @@ export default function Layout() {
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden">
       
-      {/* KEMBALIKAN MODAL ONBOARDING LU YANG HILANG */}
-      <OnboardingModal onComplete={(profile) => setUserProfile(profile)} />
+      {/* Kalau user belum isi target_role (Posisi Impian), OnboardingModal bakal nongol. 
+        Pas dia selesai ngisi dan nyimpen ke Backend, OnboardingModal manggil onComplete 
+        dan ngupdate tampilan Sidebar lu!
+      */}
+      <OnboardingModal onComplete={(profileData) => setUserProfile({
+          name: profileData.name,
+          role: profileData.target_role
+      })} />
 
-      {/* --- OVERLAY UNTUK HP (Gelapin layar pas menu kebuka) --- */}
       {isMobileOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-30 md:hidden backdrop-blur-sm"
@@ -109,24 +139,18 @@ export default function Layout() {
         ${isOpen ? "md:w-64" : "md:w-20"} 
         `} 
       >
-        {/* HEADER SIDEBAR & TOGGLE BUTTON */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-100 dark:border-gray-700 shrink-0">
-          {/* Di HP selalu muncul teksnya, di Desktop ikut state isOpen */}
           <h1 className={`text-xl font-bold text-indigo-600 dark:text-indigo-400 truncate transition-opacity duration-300
             ${!isOpen && "md:opacity-0 md:hidden"}
           `}>
             MagangHunter
           </h1>
-
-          {/* Tombol Panah Kiri/Kanan (Cuma muncul di Desktop) */}
           <button 
             onClick={() => setIsOpen(!isOpen)} 
             className="hidden md:block p-1.5 rounded-lg bg-gray-50 dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-500 dark:text-gray-300 hover:text-indigo-600 transition-colors shrink-0"
           >
             {isOpen ? <FaChevronLeft /> : <FaChevronRight />}
           </button>
-
-          {/* Tombol Close (Cuma muncul di HP) */}
           <button 
             onClick={() => setIsMobileOpen(false)}
             className="md:hidden p-1.5 text-gray-500 dark:text-gray-300"
@@ -135,13 +159,12 @@ export default function Layout() {
           </button>
         </div>
 
-        {/* MENU ITEMS */}
         <nav className="flex-1 px-3 py-6 space-y-2 flex flex-col overflow-y-auto custom-scrollbar">
           {menus.map((menu) => (
             <NavLink
               key={menu.name}
               to={menu.path}
-              onClick={() => setIsMobileOpen(false)} // Kalau di HP, pas menu diklik otomatis nutup sidebar
+              onClick={() => setIsMobileOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-3 rounded-xl transition-all font-medium overflow-hidden whitespace-nowrap
                 ${isActive 
@@ -153,7 +176,6 @@ export default function Layout() {
               }
             >
               <div className="shrink-0">{menu.icon}</div>
-              
               <span className={`transition-opacity duration-200 
                 ${isOpen ? "opacity-100" : "md:opacity-0 md:w-0 md:hidden"}
               `}>
@@ -162,7 +184,6 @@ export default function Layout() {
             </NavLink>
           ))}
 
-          {/* TOMBOL DARK MODE */}
           <button
             onClick={toggleDarkMode}
             className={`flex items-center gap-3 px-3 py-3 mt-auto rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors
@@ -180,12 +201,13 @@ export default function Layout() {
           </button>
         </nav>
 
-        {/* STATUS CARD / PROFIL */}
+        {/* --- AREA PROFIL USER (Udah Fix) --- */}
         <div className="p-4 border-t border-gray-100 dark:border-gray-700 shrink-0">
             <div className={`mb-3 transition-all duration-300 ${!isOpen && "md:hidden"}`}> 
+                {/* Kalau data userProfile udah berhasil diambil dari Backend, tampilin ini */}
                 {userProfile ? (
                     <div className="bg-indigo-50 dark:bg-gray-800 p-4 rounded-xl border border-indigo-100 dark:border-gray-700 flex items-center gap-3 shadow-sm">
-                        <div className="bg-indigo-500 text-white p-2.5 rounded-lg flex-shrink-0">
+                        <div className="bg-indigo-500 text-white p-2.5 rounded-lg shrink-0">
                             <FaUserAstronaut />
                         </div>
                         <div className="overflow-hidden">
@@ -194,7 +216,7 @@ export default function Layout() {
                                 {userProfile.name}
                             </p>
                             <p className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold truncate mt-0.5">
-                                Target: {userProfile.role}
+                                Target: {userProfile.role || "Belum diisi"}
                             </p>
 
                             <div className="flex items-center gap-1 mt-1 bg-orange-100 dark:bg-orange-900/40 px-2 py-0.5 rounded-md w-fit border border-orange-200 dark:border-orange-800/50">
@@ -206,6 +228,7 @@ export default function Layout() {
                         </div>
                     </div>
                 ) : (
+                    // Kalau masih loading nunggu balasan dari Backend, tampilin animasi kotak abu-abu (Pulse)
                     <div className="h-16 w-full bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse"></div>
                 )}
             </div>
@@ -228,7 +251,6 @@ export default function Layout() {
       {/* --- KONTEN UTAMA --- */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         
-        {/* HEADER KHUSUS HP (Cuma muncul di layar kecil) */}
         <header className="md:hidden h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 shrink-0">
           <div className="flex items-center gap-2">
             <FaRocket className="text-indigo-600 dark:text-indigo-400" size={20} />
@@ -242,7 +264,6 @@ export default function Layout() {
           </button>
         </header>
 
-        {/* AREA KERJA (Dashboard / Analytics) */}
         <main className="flex-1 overflow-y-auto">
           <Outlet />
         </main>

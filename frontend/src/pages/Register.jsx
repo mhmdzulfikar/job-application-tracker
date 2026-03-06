@@ -1,7 +1,10 @@
 import { useState } from 'react';
-import api from '../api/axios';
+import { Link, useNavigate } from 'react-router-dom';
+import api from '../../src/lib/axios';
 
 const Register = () => {
+
+    const navigate = useNavigate();
     // State buat nangkep ketikan user
     const [formData, setFormData] = useState({
         name: '',
@@ -26,6 +29,8 @@ const Register = () => {
             const response = await api.post('/auth/register', formData);
             setMessage(response.data.message); // Nangkep pesan sukses dari Node.js
             setFormData({ name: '', email: '', password: '' });
+             alert("Registration Successful! Please Login.");
+             navigate("/login");
         } catch (err) {
             setError(err.response?.data?.error || 'Gagal mendaftar!');
         }
@@ -74,7 +79,16 @@ const Register = () => {
                     >
                         Daftar Sekarang
                     </button>
+                <div>
+                    <p className="text-sm text-center text-gray-600">
+                                        Do you have account?{' '}
+                                        <Link to="/login" className="font-medium text-blue-600 hover:underline">
+                                           Click here to login.
+                                        </Link>
+                                    </p>
+                 </div>
                 </form>
+                
             </div>
         </div>
     );

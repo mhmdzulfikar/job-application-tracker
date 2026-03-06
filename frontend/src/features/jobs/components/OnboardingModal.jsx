@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaRocket } from "react-icons/fa";
-import api from "../api/axios"; // 👈 Import kurir Axios kita
+import api from "../../../lib/axios"; // 👈 Import kurir Axios kita
 
 export default function OnboardingModal({ onComplete }) {
   const [isOpen, setIsOpen] = useState(false);

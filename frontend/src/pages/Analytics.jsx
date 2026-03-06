@@ -1,19 +1,42 @@
 import { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { FaBriefcase, FaComments, FaTimesCircle, FaCheckCircle } from "react-icons/fa";
-import EmptyState from "../components/EmptyState";
+import EmptyState from "../../src/features/jobs/components/EmptyState";
+import { jobService } from "../features/jobs/services/jobService";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function Analytics() {
   const [jobs, setJobs] = useState([]);
   const [sortBy, setSortBy] = useState("terbaru");
+  const [isLoading, setIsLoading] = useState(true);
 
   // 1. Ambil Data pas loading
   useEffect(() => {
-    const saved = localStorage.getItem("magang-jobs");
-    if (saved) {
-      setJobs(JSON.parse(saved));
-    }
+    const fetchJobs = async () => {
+      try {
+        const data = await jobService.getAll();
+        setJobs(data);
+      } catch (error) {
+        console.error("Gagal mengambil data untuk Analytics:", error);
+        toast.error("Gagal mengambil data dari server! 🚨"); 
+      } finally {
+        setIsLoading(false); 
+      }
+    };
+
+    fetchJobs();
   }, []);
+
+  // ==============================
+  // LOADING SCREEN (HARUS DI LUAR useEffect!)
+  // ==============================
+  if (isLoading) {
+    return (
+      <div className="p-6 h-full flex items-center justify-center text-gray-500">
+        Memuat brankas data...
+      </div>
+    );
+  }
 
   // 2. HITUNG-HITUNGAN
   const totalJobs = jobs.length;
@@ -26,12 +49,11 @@ export default function Analytics() {
 
   // 3. FUNGSI EXPORT CSV
   const handleExportCSV = () => {
-    const headers = ["ID", "Perusahaan", "Posisi", "Gaji", "Status"];
+    const headers = ["ID", "Perusahaan", "Posisi", "Status"];
     const rows = jobs.map(job => [
       job.id,
-      `"${job.company}"`,
-      `"${job.position}"`,
-      `"${job.salary}"`,
+      `"${job.company_name || job.company || "-"}"`,
+      `"${job.position || "-"}"`,
       job.status
     ].join(","));
 
@@ -45,11 +67,16 @@ export default function Analytics() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    toast.success("Laporan berhasil di-download! 📊");
   };
 
+  // SORTING DATA (Udah disesuaiin sama nama kolom Supabase)
   const sortedJobs = [...jobs].sort((a, b) => {
-    if (sortBy === "a-z") return a.company.localeCompare(b.company);
-    if (sortBy === "z-a") return b.company.localeCompare(a.company);
+    const compA = a.company_name || a.company || "";
+    const compB = b.company_name || b.company || "";
+
+    if (sortBy === "a-z") return compA.localeCompare(compB);
+    if (sortBy === "z-a") return compB.localeCompare(compA);
     if (sortBy === "status") return a.status.localeCompare(b.status);
     return b.id - a.id;
   });
@@ -66,6 +93,9 @@ export default function Analytics() {
 
   return (
     <div className="p-6 animate-fade-in max-w-7xl mx-auto">
+      {/* PANGGIL KOMPONEN TOASTER DI SINI */}
+      <Toaster position="top-right" toastOptions={{ duration: 3000, style: { background: '#333', color: '#fff', borderRadius: '10px' } }} />
+      
       <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">Laporan Perjuangan</h1>
 
       {/* --- BAGIAN ATAS: GRAFIK DONAT --- */}
@@ -89,7 +119,7 @@ export default function Analytics() {
             </div>
         </div>
 
-        <div className="w-full md:w-2/3 h-[250px]">
+        <div className="w-full md:w-2/3 h-62.5"> 
             {totalJobs === 0 ? (
                 <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                     <p className="font-medium">Belum ada data visual.</p>
@@ -183,7 +213,7 @@ export default function Analytics() {
                     ) : (
                         sortedJobs.map((job) => (
                             <tr key={job.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                                <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{job.company}</td>
+                                <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{job.company_name || job.company}</td>
                                 <td className="px-6 py-4">{job.position}</td>
                                 <td className="px-6 py-4">
                                     <span className={`px-2 py-1 rounded-full text-xs font-semibold
