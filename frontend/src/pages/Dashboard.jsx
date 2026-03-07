@@ -47,13 +47,25 @@ export default function Dashboard() {
   // LOADING SCREEN
   // ==============================
 
-  if (isLoading) {
-    return (
-      <div className="p-6 h-full flex items-center justify-center text-gray-500">
-        Memuat brankas data...
+if (isLoading) {
+  return (
+    // Gunakan h-screen agar benar-benar setinggi layar penuh (Viewport Height)
+    <div className="flex flex-col gap-4 items-center justify-center h-screen w-full">
+      
+      {/* Container Bar Loading */}
+      <div className="w-48 h-1.5 bg-slate-700 rounded-full overflow-hidden relative">
+        {/* Bar yang bergerak (Pastikan animasi 'loading' sudah ada di tailwind.config.js) */}
+        <div className="absolute bg-[#006BFF] h-full w-24 animate-[loading_1.5s_ease-in-out_infinite] rounded-full"></div>
       </div>
-    );
-  }
+
+      {/* Teks diletakkan di luar bar agar tidak ikut terpotong/h-1.5 */}
+      <p className="text-slate-400 text-sm font-medium animate-pulse">
+        Memuat data...
+      </p>
+      
+    </div>
+  );
+}
 
 
   // ==============================

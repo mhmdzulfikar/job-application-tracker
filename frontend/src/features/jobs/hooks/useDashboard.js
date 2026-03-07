@@ -18,17 +18,25 @@ export default function useDashboard() {
 
 
   // ==============================
-  // FETCH JOBS
+  // 1. FETCH JOBS (Dengan Penerjemah)
   // ==============================
-
   const fetchJobs = async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
 
       const data = await jobService.getAll();
-      setJobs(data);
+      
+      // JURUS SENIOR: Normalisasi data biar UI lu ngga bingung!
+      const normalizedData = data.map(job => ({
+        ...job,
+        company: job.company_name || job.company || "", // Paksa ke 'company'
+        interviewDate: job.interview_date || "",        // Terjemahin tanggal
+        tasks: job.tasks || [],                         // Pastiin array ngga undefined
+        notes: job.notes || ""                          // Pastiin string ngga undefined
+      }));
 
+      setJobs(normalizedData);
     } catch (error) {
       toast.error("Gagal mengambil data lamaran!");
     } finally {
@@ -36,9 +44,52 @@ export default function useDashboard() {
     }
   };
 
-  useEffect(() => {
+    useEffect(() => {
     fetchJobs();
   }, []);
+
+  // ==============================
+  // 2. SAVE DETAIL JOB (Benerin Tipe Data)
+  // ==============================
+  const handleSaveJobDetails = async (updatedJobData) => {
+    try {
+      // Packing kardus dengan nama yang dikenal Backend (Snake_case)
+      const payloadToBackend = {
+        company_name: updatedJobData.company,
+        position: updatedJobData.position,
+        status: updatedJobData.status,
+        url: updatedJobData.url || null,
+        
+        // Kalau tanggal kosong (""), ubah jadi null biar database ngga error
+        interview_date: updatedJobData.interviewDate ? updatedJobData.interviewDate : null, 
+        notes: updatedJobData.notes || "",
+        tasks: updatedJobData.tasks || []
+      };
+
+      const updated = await jobService.update(updatedJobData.id, payloadToBackend);
+
+      // Terjemahin lagi balasan dari backend sebelum dimasukin ke UI
+      const normalizedUpdated = {
+        ...updated,
+        company: updated.company_name,
+        interviewDate: updated.interview_date || "",
+        tasks: updated.tasks || [],
+        notes: updated.notes || ""
+      };
+
+      setJobs((prev) =>
+        prev.map((job) =>
+          job.id === updatedJobData.id ? normalizedUpdated : job
+        )
+      );
+
+      toast.success("Detail lamaran berhasil disimpan! 📝");
+      setSelectedJob(null);
+    } catch (error) {
+      toast.error("Gagal menyimpan detail lamaran!");
+      console.error(error);
+    }
+  };
 
 
   // ==============================
@@ -111,17 +162,44 @@ export default function useDashboard() {
 
 
   // ==============================
-  // DRAG
+  // DRAG & DROP 
   // ==============================
 
   const handleDragEnd = async (event) => {
-    const { active, over } = event;
+    // 1. BACA LAPORAN CCTV
+    const { active, over } = event; 
 
-    if (!over) return;
+    // 2. CEK JURANG (Kalau dilepas di luar kolom, batalin)
+    if (!over) return; 
 
-    setActiveId(null);
+    // 3. SIAPIN DATA (JANGAN PAKE parseInt, biarin aja string UUID-nya!)
+    const jobId = active.id; 
+    const newStatus = over.id;    
+
+    // Cek dulu, kalau dia dilepas di kolom yang sama, ngapain di-update? Batalin aja hemat kuota.
+    const jobToUpdate = jobs.find((j) => j.id === jobId);
+    if (!jobToUpdate || jobToUpdate.status === newStatus) return;
+
+    // 4. UPDATE UI INSTAN (Biar kerasa smooth di mata User)
+    setJobs((prevJobs) => 
+        prevJobs.map((job) => 
+            job.id === jobId ? { ...job, status: newStatus } : job                          
+        )
+    );
+
+    // 5. LAPOR KE BACKEND (Penting!)
+    try {
+        await jobService.updateStatus(jobId, newStatus);
+    } catch (error) {
+        toast.error("Koneksi putus! Gagal pindah kolom.");
+        // Kalau Backend nolak (error), balikin lagi posisi kartunya ke tempat asal (Rollback)
+        setJobs((prevJobs) => 
+            prevJobs.map((job) => 
+                job.id === jobId ? { ...job, status: jobToUpdate.status } : job                          
+            )
+        );
+    }
   };
-
 
   // ==============================
   // MODAL
@@ -136,6 +214,7 @@ export default function useDashboard() {
     setEditingJob(job);
     setIsModalOpen(true);
   };
+
 
 
   // ==============================
@@ -168,6 +247,8 @@ export default function useDashboard() {
 
     openAddModal,
     openEditModal,
+
+    handleSaveJobDetails,
 
     todayInterviews
   };

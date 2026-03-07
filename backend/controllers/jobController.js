@@ -32,23 +32,51 @@ const createJob = async (req, res) => {
 };
 
 // 3. UPDATE STATUS LAMARAN (PUT) - Buat pas kartu digeser (Drag & Drop)
+// backend/controllers/jobController.js
+
 const updateJob = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status } = req.body;
+        // 1. Tangkap SEMUA data yang dikirim dari React
+        const { company_name, position, status, url, interview_date, notes, tasks } = req.body;
 
-        const updatedJob = await pool.query(
-            'UPDATE jobs SET status = $1 WHERE id = $2 AND user_id = $3 RETURNING *',
-            [status, id, req.user.id]
-        );
+        // 2. Update ke Database (Kalau lu pake Pool Query pg)
+        const updateQuery = `
+            UPDATE jobs 
+            SET company_name = $1, 
+                position = $2, 
+                status = $3, 
+                url = $4, 
+                interview_date = $5, 
+                notes = $6, 
+                tasks = $7
+            WHERE id = $8 AND user_id = $9
+            RETURNING *;
+        `;
+        
+        // PENTING: tasks harus diubah jadi JSON string kalau pakai raw SQL
+        const values = [
+            company_name, 
+            position, 
+            status, 
+            url || null, 
+            interview_date || null, 
+            notes || "", 
+            JSON.stringify(tasks || []), // 👈 INI YANG BIKIN ERROR 500 KALAU LU LUPA!
+            id, 
+            req.user.id
+        ];
 
-        if (updatedJob.rows.length === 0) {
-            return res.status(404).json({ error: "Lamaran ngga ketemu atau bukan punya lu Bos!" });
+        const result = await pool.query(updateQuery, values);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: "Job tidak ditemukan atau bukan milikmu" });
         }
-        res.json(updatedJob.rows[0]);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ error: "Gagal update status lamaran Bos!" });
+
+        res.status(200).json(result.rows[0]);
+    } catch (error) {
+        console.error("ERROR UPDATE JOB:", error.message);
+        res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
 
