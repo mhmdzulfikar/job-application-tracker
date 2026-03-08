@@ -21,14 +21,13 @@ const Login = () => {
             // Nembak API Login
             const response = await api.post('/auth/login', formData);
             
-            // 🚨 INI BAGIAN PALING PENTING 🚨
             // Simpan Token JWT ke dompet browser (Local Storage)
             localStorage.setItem('token', response.data.token);
             
             // Simpan juga data user (nama, role) biar gampang ditampilin di header nanti
             localStorage.setItem('user', JSON.stringify(response.data.user));
 
-            alert("Login Sukses Bos! 🚀");
+            alert("Login Sukses!");
             
             // Arahin langsung ke halaman Dashboard
             navigate('/dashboard'); 
@@ -75,9 +74,9 @@ const Login = () => {
 
                 {/* Tombol pindah ke halaman Register */}
                 <p className="text-sm text-center text-gray-600">
-                    Belum punya akun?{' '}
+                   Don't have an account yet?{' '}
                     <Link to="/register" className="font-medium text-blue-600 hover:underline">
-                        Daftar di sini
+                        Register here
                     </Link>
                 </p>
             </div>

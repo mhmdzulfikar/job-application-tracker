@@ -110,11 +110,11 @@ if (isLoading) {
 
                 <div>
                   <h3 className="font-bold text-lg">
-                    Panggilan Perang Hari Ini! 🔥
+                    Panggilan Perang Hari Ini!!!
                   </h3>
 
                   <p className="text-white/90 text-sm font-medium">
-                    Lu punya
+                    Kamu punya
                     <span className="font-extrabold text-yellow-200">
                       {" "} {todayInterviews.length} jadwal interview
                     </span>
@@ -161,7 +161,7 @@ if (isLoading) {
             <div className="flex gap-4 flex-col lg:flex-row-reverse w-full md:flex-row">
 
               {/* SEARCH */}
-              <div className="relative w-full max-w-xs">
+              <div className="relative w-full max-w-xs bg-white rounded-lg">
 
                 <input
                   type="text"

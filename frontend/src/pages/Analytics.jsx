@@ -18,7 +18,7 @@ export default function Analytics() {
         setJobs(data);
       } catch (error) {
         console.error("Gagal mengambil data untuk Analytics:", error);
-        toast.error("Gagal mengambil data dari server! 🚨"); 
+        toast.error("Gagal mengambil data dari server!"); 
       } finally {
         setIsLoading(false); 
       }
@@ -79,7 +79,7 @@ if (isLoading) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success("Laporan berhasil di-download! 📊");
+    toast.success("Laporan berhasil di-download!");
   };
 
   // SORTING DATA (Udah disesuaiin sama nama kolom Supabase)
@@ -115,7 +115,7 @@ if (isLoading) {
         <div className="w-full md:w-1/3 flex flex-col justify-center">
             <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-2 text-center md:text-left">Statistik Lamaran</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 text-center md:text-left">
-                Visualisasi dari {totalJobs} total lamaran lu sejauh ini.
+                Visualisasi dari {totalJobs} total lamaran.
             </p>
             
             <div className="space-y-3">
@@ -135,7 +135,7 @@ if (isLoading) {
             {totalJobs === 0 ? (
                 <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                     <p className="font-medium">Belum ada data visual.</p>
-                    <p className="text-xs">Tambah lamaran buat ngeliat grafik lu!</p>
+                    <p className="text-xs">Tambah lamaran untuk ngeliat grafik!</p>
                 </div>
             ) : (
                 <ResponsiveContainer width="100%" height="100%">

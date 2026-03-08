@@ -30,7 +30,7 @@ export default function Settings() {
                     target_role: response.data.user.target_role || ""
                 });
             } catch (error) {
-                toast.error("Gagal ngambil data dari brankas server! 🚨");
+                toast.error("Gagal ngambil data dari server! ");
             } finally {
                 setIsLoading(false);
             }
@@ -52,7 +52,7 @@ export default function Settings() {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
-            toast.success("Profile Berhasil diamankan di Cloud! ☁️🚀");
+            toast.success("Profile Save!");
         } catch (error) {
             toast.error("Gagal nyimpen profile ke server!");
         }
@@ -85,7 +85,7 @@ export default function Settings() {
             link.click();
             document.body.removeChild(link);
 
-            toast.success("Data dari Database berhasil didownload! 🛡️");
+            toast.success("Data dari Database berhasil didownload!");
         } catch (error) {
             toast.error("Gagal nge-backup data dari server.");
         }
@@ -95,7 +95,7 @@ export default function Settings() {
     // 4. LOGOUT (Gantiin Reset)
     // ==========================================
     const handleLogout = () => {
-        const confirmLogout = window.confirm("Yakin mau keluar akun Bos? 🚪");
+        const confirmLogout = window.confirm("Yakin mau keluar akun?");
 
         if (confirmLogout) {
             // Hapus tiket masuk dari dompet browser
@@ -203,7 +203,7 @@ export default function Settings() {
                             <FaExclamationTriangle /> Keluar Akun
                         </h2>
                         <p className="text-xs text-red-600/80 dark:text-red-400/80 mb-4">
-                            Sistem kita sekarang pakai Cloud. Data lu ngga akan hilang kalau lu keluar. Lu tinggal login lagi buat akses datanya.
+                            Sistem kita sekarang pakai Cloud. Data kamu ngga akan hilang kalau kamu keluar. Kamu tinggal login lagi buat akses datanya.
                         </p>
                         <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white py-3 rounded-xl font-bold transition-all active:scale-95">
                             <FaSignOutAlt /> Keluar Aplikasi

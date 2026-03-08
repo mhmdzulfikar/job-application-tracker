@@ -54,6 +54,7 @@ export default function JobModal({ job, onClose, onSave }) {
     });
   };
 
+
   const handleDeleteTask = (taskId) => {
     setFormData({
       ...formData,
@@ -169,12 +170,16 @@ export default function JobModal({ job, onClose, onSave }) {
                                         {task.text}
                                     </span>
                                 </label>
+
+
                                 <button 
                                     type="button" onClick={() => handleDeleteTask(task.id)}
                                     className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1"
                                 >
                                     <FaTrash size={12} />
                                 </button>
+                                
+
                             </div>
                         ))
                     )}

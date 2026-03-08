@@ -17,12 +17,19 @@ const getJobs = async (req, res) => {
 // 2. TAMBAH LAMARAN BARU (POST)
 const createJob = async (req, res) => {
     try {
-        const { company_name, position, status, date_applied } = req.body;
+        const { company_name, position, salary, status, date_applied } = req.body;
         
         const newJob = await pool.query(
-            `INSERT INTO jobs (user_id, company_name, position, status, date_applied) 
-             VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-            [req.user.id, company_name, position, status || 'applied', date_applied || new Date()]
+            `INSERT INTO jobs (user_id, company_name, position, salary, status, date_applied) 
+             VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+        [
+            req.user.id, 
+            company_name, 
+            position, 
+            salary || null,
+            status || 'applied', 
+            date_applied || new Date()
+        ]
         );
         res.status(201).json(newJob.rows[0]);
     } catch (err) {
@@ -38,31 +45,33 @@ const updateJob = async (req, res) => {
     try {
         const { id } = req.params;
         // 1. Tangkap SEMUA data yang dikirim dari React
-        const { company_name, position, status, url, interview_date, notes, tasks } = req.body;
+        const { company_name, position, salary, status, url, interview_date, notes, tasks } = req.body;
 
         // 2. Update ke Database (Kalau lu pake Pool Query pg)
         const updateQuery = `
             UPDATE jobs 
             SET company_name = $1, 
-                position = $2, 
-                status = $3, 
-                url = $4, 
-                interview_date = $5, 
-                notes = $6, 
-                tasks = $7
-            WHERE id = $8 AND user_id = $9
+                position = $2,
+                salary = $3,
+                status = $4, 
+                url = $5, 
+                interview_date = $6, 
+                notes = $7, 
+                tasks = $8
+            WHERE id = $9 AND user_id = $10
             RETURNING *;
         `;
         
         // PENTING: tasks harus diubah jadi JSON string kalau pakai raw SQL
         const values = [
-            company_name, 
-            position, 
+            company_name,
+            position,  
+            salary,
             status, 
             url || null, 
             interview_date || null, 
             notes || "", 
-            JSON.stringify(tasks || []), // 👈 INI YANG BIKIN ERROR 500 KALAU LU LUPA!
+            JSON.stringify(tasks || []),
             id, 
             req.user.id
         ];

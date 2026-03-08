@@ -33,7 +33,8 @@ export default function useDashboard() {
         company: job.company_name || job.company || "", // Paksa ke 'company'
         interviewDate: job.interview_date || "",        // Terjemahin tanggal
         tasks: job.tasks || [],                         // Pastiin array ngga undefined
-        notes: job.notes || ""                          // Pastiin string ngga undefined
+        notes: job.notes || "",
+        salary: job.salary || ""                       // Pastiin string ngga undefined
       }));
 
       setJobs(normalizedData);
@@ -57,8 +58,10 @@ export default function useDashboard() {
       const payloadToBackend = {
         company_name: updatedJobData.company,
         position: updatedJobData.position,
+        salary: updatedJobData.salary || null,
         status: updatedJobData.status,
         url: updatedJobData.url || null,
+        
         
         // Kalau tanggal kosong (""), ubah jadi null biar database ngga error
         interview_date: updatedJobData.interviewDate ? updatedJobData.interviewDate : null, 
@@ -74,7 +77,8 @@ export default function useDashboard() {
         company: updated.company_name,
         interviewDate: updated.interview_date || "",
         tasks: updated.tasks || [],
-        notes: updated.notes || ""
+        notes: updated.notes || "",
+        salary: updated.salary || ""
       };
 
       setJobs((prev) =>
@@ -83,7 +87,7 @@ export default function useDashboard() {
         )
       );
 
-      toast.success("Detail lamaran berhasil disimpan! 📝");
+      toast.success("Detail lamaran berhasil disimpan! ");
       setSelectedJob(null);
     } catch (error) {
       toast.error("Gagal menyimpan detail lamaran!");
@@ -115,84 +119,122 @@ export default function useDashboard() {
   };
 
 
+ // ==============================
+  // CREATE / UPDATE JOB (Modal Basic)
   // ==============================
-  // CREATE / UPDATE JOB
-  // ==============================
-
   const handleSaveJob = async (jobData) => {
-
     try {
-
       if (editingJob) {
+        // 1. JURUS GABUNG KARDUS (Merge Data)
+        // Bawa barang baru dari modal, sisanya ambil dari data lama (editingJob) biar ngga kehapus!
+        const payload = {
+          // Tangkap semua kemungkinan nama 'company' dari modal, kalau gagal, balikin ke nama lama
+          company_name: jobData.company || jobData.company_name || jobData.companyName || editingJob.company,
+          position: jobData.position || editingJob.position,
+          status: jobData.status || editingJob.status,
+          salary: jobData.salary || null,
+          
+          // 🚨 PENYELAMAT BARANG MAHAL (Biar Notes & Tasks ngga keriset pas lu ngedit gaji)
+          url: editingJob.url || null,
+          interview_date: editingJob.interviewDate || null, 
+          notes: editingJob.notes || "",
+          tasks: editingJob.tasks || []
+        };
 
-        const updated = await jobService.update(editingJob.id, {
-          company_name: jobData.company || jobData.company_name,
-          position: jobData.position,
-          status: jobData.status
-        });
+        const updated = await jobService.update(editingJob.id, payload);
 
+        // 2. NORMALISASI BALIKAN SERVER
+        const normalizedUpdated = {
+          ...updated,
+          company: updated.company_name, // Terjemahin ke camelCase
+          interviewDate: updated.interview_date || "",
+          salary: updated.salary || "",
+          tasks: updated.tasks || [],
+          notes: updated.notes || ""
+        };
+
+        // 3. UPDATE UI REACT
         setJobs((prev) =>
           prev.map((job) =>
-            job.id === editingJob.id ? updated : job
+            job.id === editingJob.id ? normalizedUpdated : job
           )
         );
 
-        toast.success("Perubahan disimpan!");
+        toast.success("Perubahan gaji & status disimpan!");
         setEditingJob(null);
 
       } else {
-
-        const created = await jobService.create({
-          company_name: jobData.company || jobData.company_name,
+        // --- LOGIKA BUAT BIKIN LAMARAN BARU ---
+        const payload = {
+          company_name: jobData.company || jobData.company_name || jobData.companyName,
           position: jobData.position,
-          status: "Applied"
-        });
+          status: "Applied",
+          salary: jobData.salary || null
+        };
 
-        setJobs((prev) => [created, ...prev]);
+        const created = await jobService.create(payload);
 
+        // Normalisasi data baru
+        const normalizedCreated = {
+          ...created,
+          company: created.company_name,
+          salary: created.salary || ""
+        };
+
+        setJobs((prev) => [normalizedCreated, ...prev]);
         toast.success("Lamaran perdana mengudara!");
       }
 
       setIsModalOpen(false);
-
-    } catch {
+    } catch (error) {
       toast.error("Gagal menyimpan ke server!");
+      console.error(error);
     }
   };
 
 
   // ==============================
-  // DRAG & DROP 
+  // DRAG & DROP (Udah Lulus Sensor Satpam!)
   // ==============================
-
   const handleDragEnd = async (event) => {
-    // 1. BACA LAPORAN CCTV
     const { active, over } = event; 
-
-    // 2. CEK JURANG (Kalau dilepas di luar kolom, batalin)
     if (!over) return; 
 
-    // 3. SIAPIN DATA (JANGAN PAKE parseInt, biarin aja string UUID-nya!)
     const jobId = active.id; 
     const newStatus = over.id;    
 
-    // Cek dulu, kalau dia dilepas di kolom yang sama, ngapain di-update? Batalin aja hemat kuota.
     const jobToUpdate = jobs.find((j) => j.id === jobId);
     if (!jobToUpdate || jobToUpdate.status === newStatus) return;
 
-    // 4. UPDATE UI INSTAN (Biar kerasa smooth di mata User)
+    // 1. UPDATE UI INSTAN (Optimistic UI)
     setJobs((prevJobs) => 
         prevJobs.map((job) => 
             job.id === jobId ? { ...job, status: newStatus } : job                          
         )
     );
 
-    // 5. LAPOR KE BACKEND (Penting!)
+    // 2. LAPOR KE BACKEND DENGAN KARDUS LENGKAP!
     try {
-        await jobService.updateStatus(jobId, newStatus);
+        // Jangan males! Kirim ulang semua data bawaan kartu, cuma statusnya aja yang diganti
+        const payloadToBackend = {
+            company_name: jobToUpdate.company || jobToUpdate.company_name, 
+            position: jobToUpdate.position,
+            salary: jobToUpdate.salary || null,
+            status: newStatus, 
+            url: jobToUpdate.url || null,
+            interview_date: jobToUpdate.interviewDate || null, 
+            notes: jobToUpdate.notes || "",
+            tasks: jobToUpdate.tasks || []
+        };
+
+        // Ganti pake jobService.update (karena backend lu nerimanya di updateJob yang butuh 8 parameter)
+        await jobService.update(jobId, payloadToBackend);
+
+        toast.success(`Berhasil pindah ke kolom ${newStatus}!`);
+
     } catch (error) {
         toast.error("Koneksi putus! Gagal pindah kolom.");
-        // Kalau Backend nolak (error), balikin lagi posisi kartunya ke tempat asal (Rollback)
+        // Rollback mundur kalau server nolak
         setJobs((prevJobs) => 
             prevJobs.map((job) => 
                 job.id === jobId ? { ...job, status: jobToUpdate.status } : job                          

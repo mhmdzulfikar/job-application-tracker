@@ -88,7 +88,7 @@ const LandingPage = () => {
         
         <RevealOnScroll>
             <div className="inline-block px-4 py-1.5 mb-6 rounded-full bg-indigo-50 text-indigo-700 font-semibold text-sm border border-indigo-100">
-                🚀 The Ultimate Productivity Tool for Developers
+                 The Ultimate Productivity Tool for Developers
             </div>
         </RevealOnScroll>
 
