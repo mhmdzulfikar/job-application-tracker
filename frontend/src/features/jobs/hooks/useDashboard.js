@@ -270,6 +270,24 @@ export default function useDashboard() {
     setIsModalOpen(true);
   };
 
+  
+
+  // ==============================
+  // SENSOR HP & LAPTOP (Biar bisa di-drag pakai jari)
+  // ==============================
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 10, // Kursor harus geser 10px baru dianggap nge-drag (biar ngga kepencet ngga sengaja)
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250, // HP: Jari harus nahan kartu selama 250 milidetik baru bisa digeser
+        tolerance: 5, // Toleransi jari goyang 5px pas nahan
+      },
+    })
+  );
 
 
   // ==============================
