@@ -9,11 +9,12 @@ const jobRoutes = require('./routes/jobRoutes');
 const authRoutes = require('./routes/authRoutes');
 
 // Middleware
-app.use(cors());
+// app.use(cors());
 app.use(express.json()); // Biar backend bisa baca request JSON dari React
 
 app.use('/api/auth', authRoutes); 
 app.use('/api/jobs', jobRoutes);
+app.use(cors({ origin: '*' }));
 
 // Route Percobaan
 app.get('/', (req, res) => {

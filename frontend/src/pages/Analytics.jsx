@@ -82,16 +82,31 @@ if (isLoading) {
     toast.success("Laporan berhasil di-download!");
   };
 
-  // SORTING DATA (Udah disesuaiin sama nama kolom Supabase)
+ // ==============================
+  // ENGINE SORTING DATA
+  // ==============================
   const sortedJobs = [...jobs].sort((a, b) => {
-    const compA = a.company_name || a.company || "";
-    const compB = b.company_name || b.company || "";
+    // 1. Data Normalization (Biar aman kalau ada PT yang kosong)
+    const compA = (a.company_name || a.company || "").toLowerCase();
+    const compB = (b.company_name || b.company || "").toLowerCase();
 
+    // 2. Logika A-Z (Alphabetical)
     if (sortBy === "a-z") return compA.localeCompare(compB);
+    
+    // 3. Logika Z-A (Reverse Alphabetical)
     if (sortBy === "z-a") return compB.localeCompare(compA);
+    
+    // 4. Logika Status (Dikelompokin berdasarkan status)
     if (sortBy === "status") return a.status.localeCompare(b.status);
-    return b.id - a.id;
+    
+    // 5. DEFAULT: Paling Baru (Berdasarkan Waktu Dibuat / Tanggal Melamar)
+    // Diubah jadi format Waktu (Date) dulu biar bisa dihitung matematika
+    const dateA = new Date(a.created_at || a.date_applied || 0);
+    const dateB = new Date(b.created_at || b.date_applied || 0);
+    
+    return dateB - dateA; // Yang paling gede (paling baru) taruh di atas!
   });
+  
 
   // --- DATA BUAT GRAFIK DONAT ---
   const rawChartData = [
