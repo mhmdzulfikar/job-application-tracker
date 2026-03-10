@@ -46,7 +46,7 @@ const Login = () => {
                             type="email" name="email" required
                             value={formData.email} onChange={handleChange}
                             className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            placeholder="john@example.com"
+                            placeholder="zul@example.com"
                         />
                     </div>
                     <div>
