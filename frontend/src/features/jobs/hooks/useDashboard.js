@@ -244,19 +244,6 @@ export default function useDashboard() {
   };
 
   // ==============================
-  // DERIVED STATE: MESIN PENCARI (SEARCH)
-  // ==============================
-  // Jika searchTerm kosong, tampilkan semua jobs. 
-  // Jika ada isinya, saring berdasarkan nama perusahaan atau posisi.
-  const filteredJobs = jobs.filter((job) => {
-    const companyName = (job.company || job.company_name || "").toLowerCase();
-    const positionName = (job.position || "").toLowerCase();
-    const search = (searchTerm || "").toLowerCase(); // Fallback aman
-
-    return companyName.includes(search) || positionName.includes(search);
-  });
-
-  // ==============================
   // MODAL
   // ==============================
 
@@ -270,24 +257,6 @@ export default function useDashboard() {
     setIsModalOpen(true);
   };
 
-  
-
-  // ==============================
-  // SENSOR HP & LAPTOP (Biar bisa di-drag pakai jari)
-  // ==============================
-  const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: {
-        distance: 10, // Kursor harus geser 10px baru dianggap nge-drag (biar ngga kepencet ngga sengaja)
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 250, // HP: Jari harus nahan kartu selama 250 milidetik baru bisa digeser
-        tolerance: 5, // Toleransi jari goyang 5px pas nahan
-      },
-    })
-  );
 
 
   // ==============================
@@ -308,7 +277,6 @@ export default function useDashboard() {
     searchTerm,
     activeId,
     selectedJob,
-    filteredJobs,
 
     setSearchTerm,
     setIsModalOpen,
