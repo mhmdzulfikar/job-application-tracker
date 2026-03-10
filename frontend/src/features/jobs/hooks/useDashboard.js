@@ -244,6 +244,19 @@ export default function useDashboard() {
   };
 
   // ==============================
+  // DERIVED STATE: MESIN PENCARI (SEARCH)
+  // ==============================
+  // Jika searchTerm kosong, tampilkan semua jobs. 
+  // Jika ada isinya, saring berdasarkan nama perusahaan atau posisi.
+  const filteredJobs = jobs.filter((job) => {
+    const companyName = (job.company || job.company_name || "").toLowerCase();
+    const positionName = (job.position || "").toLowerCase();
+    const search = (searchTerm || "").toLowerCase(); // Fallback aman
+
+    return companyName.includes(search) || positionName.includes(search);
+  });
+
+  // ==============================
   // MODAL
   // ==============================
 
@@ -277,6 +290,7 @@ export default function useDashboard() {
     searchTerm,
     activeId,
     selectedJob,
+    filteredJobs,
 
     setSearchTerm,
     setIsModalOpen,

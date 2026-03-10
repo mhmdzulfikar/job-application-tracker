@@ -25,6 +25,7 @@ export default function Dashboard() {
     editingJob,
     searchTerm,
     selectedJob,
+    filteredJobs,
 
     setSearchTerm,
     setIsModalOpen,
@@ -257,6 +258,7 @@ if (isLoading) {
                   id={colTitle}
                   title={colTitle}
                   count={jobs.filter((j) => j.status === colTitle).length}
+                  counts={filteredJobs.filter((j) => j.status === colTitle).length}
                 >
 
                   {jobs
@@ -290,6 +292,19 @@ if (isLoading) {
                         onEdit={() => openEditModal(job)}
                       />
 
+                    ))}
+
+                    {filteredJobs
+                    .filter((job) => job.status === colTitle)
+                    .map((job) => (
+                      <JobCard
+                        key={job.id}
+                        id={job.id.toString()}
+                        job={job}
+                        onDelete={handleDeleteJob}
+                        onCardClick={() => setSelectedJob(job)}
+                        onEdit={() => openEditModal(job)}
+                      />
                     ))}
 
                 </KanbanColumn>
