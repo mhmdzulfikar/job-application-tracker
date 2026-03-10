@@ -235,7 +235,7 @@ export default function Layout() {
                 )}
             </div>
 
-            {isOpen ? (
+            {/* {isOpen ? (
                 <div className="bg-indigo-50 dark:bg-indigo-900/30 rounded-xl p-4 animate-fade-in w-full md:block hidden">
                     <p className="text-xs font-semibold text-indigo-500 dark:text-indigo-400 uppercase">Status</p>
                     <p className="text-sm text-gray-700 dark:text-gray-300 font-bold mt-1">Ready to Work </p>
@@ -246,7 +246,7 @@ export default function Layout() {
                         <FaRocket />
                     </div>
                 </div>
-            )}
+            )} */}
         </div>
       </aside>
 
