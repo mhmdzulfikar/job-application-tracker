@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import api from '../../src/lib/axios';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
+    const [showPassword, setShowPassword] = useState(false); // 1. State buat intip password
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const navigate = useNavigate(); // Ini supir kita buat pindah halaman
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,18 +20,10 @@ const Login = () => {
         setIsLoading(true);
 
         try {
-            // Nembak API Login
             const response = await api.post('/auth/login', formData);
-            
-            // Simpan Token JWT ke dompet browser (Local Storage)
             localStorage.setItem('token', response.data.token);
-            
-            // Simpan juga data user (nama, role) biar gampang ditampilin di header nanti
             localStorage.setItem('user', JSON.stringify(response.data.user));
-
             alert("Login Sukses!");
-            
-            // Arahin langsung ke halaman Dashboard
             navigate('/dashboard'); 
         } catch (err) {
             setError(err.response?.data?.error || 'Gagal login! Cek lagi email/password lu.');
@@ -57,12 +51,23 @@ const Login = () => {
                     </div>
                     <div>
                         <label className="block mb-1 font-medium text-gray-700">Password</label>
-                        <input 
-                            type="password" name="password" required
-                            value={formData.password} onChange={handleChange}
-                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            placeholder="••••••••"
-                        />
+                        {/* 2. Wrapper relatif supaya tombol bisa nempel di kanan input */}
+                        <div className="relative">
+                            <input 
+                                type={showPassword ? "text" : "password"} // 3. Tipe dinamis
+                                name="password" required
+                                value={formData.password} onChange={handleChange}
+                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                placeholder="••••••••"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-gray-500 hover:text-blue-600"
+                            >
+                                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                            </button>
+                        </div>
                     </div>
                     <button 
                         type="submit" disabled={isLoading}
@@ -72,7 +77,6 @@ const Login = () => {
                     </button>
                 </form>
 
-                {/* Tombol pindah ke halaman Register */}
                 <p className="text-sm text-center text-gray-600">
                    Don't have an account yet?{' '}
                     <Link to="/register" className="font-medium text-blue-600 hover:underline">

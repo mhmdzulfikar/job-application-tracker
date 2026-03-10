@@ -12,6 +12,7 @@ import Settings from "./pages/Settings";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import LandingPage from "./pages/LandingPage";
+import AIAgent from './pages/AIAgent';
 
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
           <Route path="tailwind" element={<TailwindPlayground />} />
           <Route path="warung" element={<Warung />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="aiagent" element={<AIAgent />} />
         </Route>
       </Route>
     </Routes>
