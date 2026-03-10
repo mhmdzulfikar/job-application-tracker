@@ -26,7 +26,7 @@ const Login = () => {
             alert("Login Sukses!");
             navigate('/dashboard'); 
         } catch (err) {
-            setError(err.response?.data?.error || 'Gagal login! Cek lagi email/password lu.');
+            setError(err.response?.data?.error || 'Gagal login! Cek lagi email/password.');
         } finally {
             setIsLoading(false);
         }
