@@ -21,37 +21,30 @@ import useDashboard from "../features/jobs/hooks/useDashboard";
 
 export default function Dashboard() {
 
-  // ==============================
-  // AMBIL SEMUA LOGIC DARI HOOK
+ // ==============================
+  // 1. AMBIL SEMUA LOGIC DARI HOOK
   // ==============================
   const {
-    jobs,
-    isLoading,
-    isModalOpen,
-    editingJob,
-    searchTerm,
-    selectedJob,
-    filteredJobs, 
-
-    setSearchTerm,
-    setIsModalOpen,
-    setSelectedJob,
-    setActiveId,
-
-    handleDeleteJob,
-    handleSaveJob,
-    handleDragEnd,
-
-    openAddModal,
-    openEditModal,
-    handleSaveJobDetails,
-
-    todayInterviews
+    jobs, isLoading, isModalOpen, editingJob, searchTerm, selectedJob, filteredJobs, 
+    setSearchTerm, setIsModalOpen, setSelectedJob, setActiveId,
+    handleDeleteJob, handleSaveJob, handleDragEnd,
+    openAddModal, openEditModal, handleSaveJobDetails, todayInterviews
   } = useDashboard();
 
+  // ==============================
+  // 2. SENSOR HARUS DI SINI BOS! DI ATASNYA IF LOADING!
+  // ==============================
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: { distance: 10 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 250, tolerance: 5 },
+    })
+  );
 
   // ==============================
-  // LOADING SCREEN
+  // 3. BARU DEH LOADING SCREEN-NYA DI BAWAH SENSOR
   // ==============================
   if (isLoading) {
     return (
@@ -65,23 +58,6 @@ export default function Dashboard() {
       </div>
     );
   }
-
-  // ==============================
-  // SENSOR HP & LAPTOP (Biar bisa di-drag pakai jari)
-  // ==============================
-  const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: {
-        distance: 10,
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 250,
-        tolerance: 5,
-      },
-    })
-  );
 
   // ==============================
   // MAIN RENDER
