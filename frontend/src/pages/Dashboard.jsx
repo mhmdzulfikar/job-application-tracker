@@ -7,7 +7,6 @@ import {
 } from "@dnd-kit/core";
 
 import { columns } from "../features/jobs/data/initialData";
-
 import JobCard from "../features/jobs/components/JobCard";
 import KanbanColumn from "../features/jobs/components/KanbanColumn";
 import AddJobModal from "../features/jobs/components/AddJobModal";
@@ -21,30 +20,49 @@ import useDashboard from "../features/jobs/hooks/useDashboard";
 
 export default function Dashboard() {
 
- // ==============================
+  // ==============================
   // 1. AMBIL SEMUA LOGIC DARI HOOK
   // ==============================
   const {
-    jobs, isLoading, isModalOpen, editingJob, searchTerm, selectedJob, filteredJobs, 
-    setSearchTerm, setIsModalOpen, setSelectedJob, setActiveId,
-    handleDeleteJob, handleSaveJob, handleDragEnd,
-    openAddModal, openEditModal, handleSaveJobDetails, todayInterviews
+    jobs,
+    isLoading,
+    isModalOpen,
+    editingJob,
+    searchTerm,
+    selectedJob,
+    filteredJobs, 
+    setSearchTerm,
+    setIsModalOpen,
+    setSelectedJob,
+    setActiveId,
+    handleDeleteJob,
+    handleSaveJob,
+    handleDragEnd,
+    openAddModal,
+    openEditModal,
+    handleSaveJobDetails,
+    todayInterviews
   } = useDashboard();
 
   // ==============================
-  // 2. SENSOR HARUS DI SINI BOS! DI ATASNYA IF LOADING!
+  // 2. SENSOR HP & LAPTOP (WAJIB DI SINI, DI BAWAH HOOK, DI ATAS IF)
   // ==============================
   const sensors = useSensors(
     useSensor(MouseSensor, {
-      activationConstraint: { distance: 10 },
+      activationConstraint: {
+        distance: 10,
+      },
     }),
     useSensor(TouchSensor, {
-      activationConstraint: { delay: 250, tolerance: 5 },
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
     })
   );
 
   // ==============================
-  // 3. BARU DEH LOADING SCREEN-NYA DI BAWAH SENSOR
+  // 3. LOADING SCREEN
   // ==============================
   if (isLoading) {
     return (
@@ -60,7 +78,7 @@ export default function Dashboard() {
   }
 
   // ==============================
-  // MAIN RENDER
+  // 4. MAIN RENDER
   // ==============================
   return (
     <>
@@ -154,7 +172,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* EMPTY STATE OR KANBAN BOARD */}
+          {/* EMPTY STATE ATAU KANBAN BOARD */}
           {jobs.length === 0 ? (
             <div className="flex-1 flex items-center justify-center">
               <EmptyState
@@ -171,10 +189,8 @@ export default function Dashboard() {
                   key={colTitle}
                   id={colTitle}
                   title={colTitle}
-                  // Ngitung cuma dari data yang udah difilter
                   count={filteredJobs.filter((j) => j.status === colTitle).length}
                 >
-                  {/* 👇👇👇 KUNCI RAHASIA: Cuma pake filteredJobs, ngga pake logic aneh-aneh! */}
                   {filteredJobs
                     .filter((job) => job.status === colTitle)
                     .map((job) => (
