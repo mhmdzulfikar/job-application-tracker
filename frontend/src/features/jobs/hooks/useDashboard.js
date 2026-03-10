@@ -259,17 +259,26 @@ export default function useDashboard() {
 
 
 
+// ==============================
+  // SELECTOR & DERIVED STATE
   // ==============================
-  // SELECTOR
-  // ==============================
-
+  
+  // 1. Hitung Interview Hari Ini
   const todayInterviews = jobs.filter(isTodayInterview);
 
+  // 2. Mesin Pencari (Search Filter) - TAMBAHIN INI BOS!
+  const filteredJobs = jobs.filter((job) => {
+    const companyName = (job.company || job.company_name || "").toLowerCase();
+    const positionName = (job.position || "").toLowerCase();
+    const search = (searchTerm || "").toLowerCase();
+    return companyName.includes(search) || positionName.includes(search);
+  });
 
   return {
 
     jobs,
     isLoading,
+    filteredJobs,
 
     isModalOpen,
     editingJob,
