@@ -33,6 +33,7 @@ export default function Layout() {
   const menus = [
     { name: "Board", path: "/dashboard", icon: <FaColumns size={20} /> },
     { name: "Analytics", path: "/analytics", icon: <FaChartPie size={20} /> },
+    { name: "Find Job", path: "/find-job", icon: <FaRocket size={20} /> },
     { name: "Settings", path: "/settings", icon: <FaCog size={20} /> },
     { name: "AIAgent", path: "/aiagent", icon: <FaBrain size={20} /> },
   ];

@@ -43,6 +43,9 @@ const createJob = async (req, res) => {
 
 const updateJob = async (req, res) => {
     try {
+
+
+
         const { id } = req.params;
         // 1. Tangkap SEMUA data yang dikirim dari React
         const { company_name, position, salary, status, url, interview_date, notes, tasks } = req.body;

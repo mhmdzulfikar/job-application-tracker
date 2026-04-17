@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from "../src/components/layouts/Layout";
 import ProtectedRoute from "../src/features/jobs/components/ProtectedRoute";
+import FindJob from "./pages/FindJob";
 
 // FOLDER pages
 import Dashboard from "./pages/Dashboard";
@@ -26,6 +27,7 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/find-job" element={<FindJob />} />
           <Route path="analytics" element={<Analytics />} />
           <Route path="tailwind" element={<TailwindPlayground />} />
           <Route path="warung" element={<Warung />} />

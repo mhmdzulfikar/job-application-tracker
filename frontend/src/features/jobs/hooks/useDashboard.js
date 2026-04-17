@@ -168,7 +168,7 @@ export default function useDashboard() {
         const payload = {
           company_name: jobData.company || jobData.company_name || jobData.companyName,
           position: jobData.position,
-          status: "Applied",
+          status: jobData.status || "Applied",
           salary: jobData.salary || null
         };
 
@@ -198,20 +198,27 @@ export default function useDashboard() {
   // ==============================
   const handleDragEnd = async (event) => {
     const { active, over } = event; 
+
+    // console.log("1. ID KARTU DITARIK:", active?.id, "Tipe:", typeof active?.id);
+    // console.log("2. JATUH DI KOLOM:", over?.id);
     if (!over) return; 
 
     const jobId = active.id; 
     const newStatus = over.id;    
 
-    const jobToUpdate = jobs.find((j) => j.id === jobId);
+    const jobToUpdate = jobs.find((j) => String(j.id) === String(jobId));
+    console.log("3. DATA KARTU LAMA:", jobToUpdate);
     if (!jobToUpdate || jobToUpdate.status === newStatus) return;
+    // console.log("4. DATA KARTU BARU:", { ...jobToUpdate, status: newStatus });
 
     // 1. UPDATE UI INSTAN (Optimistic UI)
     setJobs((prevJobs) => 
-        prevJobs.map((job) => 
-            job.id === jobId ? { ...job, status: newStatus } : job                          
-        )
-    );
+    prevJobs.map((job) =>
+        String(job.id) === String(jobId) 
+            ? { ...job, status: newStatus } 
+            : job                          
+    )
+);
 
     // 2. LAPOR KE BACKEND DENGAN KARDUS LENGKAP!
     try {
@@ -236,10 +243,10 @@ export default function useDashboard() {
         toast.error("Koneksi putus! Gagal pindah kolom.");
         // Rollback mundur kalau server nolak
         setJobs((prevJobs) => 
-            prevJobs.map((job) => 
-                job.id === jobId ? { ...job, status: jobToUpdate.status } : job                          
-            )
-        );
+    prevJobs.map((job) => 
+        String(job.id) === String(jobId) ? { ...job, status: jobToUpdate.status } : job                          
+      )
+    );
     }
   };
 

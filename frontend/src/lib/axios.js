@@ -2,7 +2,8 @@ import axios from 'axios';
 
 // Kita kasih tau Axios alamat pabrik Backend lu
 const api = axios.create({
-    baseURL: 'https://job-application-tracker-9j3l.vercel.app/api',
+  // Ubah URL Vercel jadi URL Node.js lu
+  baseURL: 'http://localhost:5000/api', 
 });
 
 export default api;
