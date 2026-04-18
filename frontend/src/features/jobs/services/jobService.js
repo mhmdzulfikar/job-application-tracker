@@ -8,8 +8,8 @@ const getAuthHeader = () => {
 
 export const jobService = {
     // 1. Ambil semua data
-    getAll: async () => {
-        const response = await api.get('/jobs', getAuthHeader());
+    getAll: async (config) => {
+        const response = await api.get('/jobs', config  );
         return response.data;
     },
 

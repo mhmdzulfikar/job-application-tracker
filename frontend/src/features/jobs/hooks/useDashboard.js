@@ -25,8 +25,11 @@ export default function useDashboard() {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const data = await jobService.getAll();
-      
+      const data = await jobService.getAll({
+        headers: {
+          Authorization: `Bearer ${token}` 
+        }
+      });
       // JURUS SENIOR: Normalisasi data biar UI lu ngga bingung!
       const normalizedData = data.map(job => ({
         ...job,
@@ -40,9 +43,18 @@ export default function useDashboard() {
       setJobs(normalizedData);
     } catch (error) {
       toast.error("Gagal mengambil data lamaran!");
+    if (error.response) {
+      // Artinya server ngerespons dengan status 4xx atau 5xx
+      console.log("Pesan dari backend:", error.response.data.error); 
+      // Output: "Gagal ngambil data lamaran dari brankas!"
+    } else {
+      console.log("Error lain:", error.message);
+    } 
     } finally {
       setIsLoading(false);
-    }
+    } 
+    
+   
   };
 
     useEffect(() => {
@@ -53,6 +65,9 @@ export default function useDashboard() {
   // 2. SAVE DETAIL JOB (Benerin Tipe Data)
   // ==============================
   const handleSaveJobDetails = async (updatedJobData) => {
+
+    setIsLoading(true);
+
     try {
       // Packing kardus dengan nama yang dikenal Backend (Snake_case)
       const payloadToBackend = {
@@ -92,7 +107,9 @@ export default function useDashboard() {
     } catch (error) {
       toast.error("Gagal menyimpan detail lamaran!");
       console.error(error);
-    }
+    }finally {
+        setIsLoading(false);
+      }
   };
 
 
@@ -103,6 +120,8 @@ export default function useDashboard() {
   const handleDeleteJob = async (id) => {
 
     if (!window.confirm("Yakin hapus lamaran ini?")) return;
+
+    setIsLoading(true);
 
     try {
       await jobService.delete(id);
@@ -115,6 +134,8 @@ export default function useDashboard() {
 
     } catch {
       toast.error("Gagal menghapus lamaran!");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -123,6 +144,9 @@ export default function useDashboard() {
   // CREATE / UPDATE JOB (Modal Basic)
   // ==============================
   const handleSaveJob = async (jobData) => {
+
+    setIsLoading(true);
+
     try {
       if (editingJob) {
         // 1. JURUS GABUNG KARDUS (Merge Data)
@@ -172,6 +196,8 @@ export default function useDashboard() {
           salary: jobData.salary || null
         };
 
+        // console.time("Create Job API Call");
+
         const created = await jobService.create(payload);
 
         // Normalisasi data baru
@@ -189,6 +215,10 @@ export default function useDashboard() {
     } catch (error) {
       toast.error("Gagal menyimpan ke server!");
       console.error(error);
+      // console.timeEnd("Create Job API Call");
+
+    } finally {
+      setIsLoading(false);
     }
   };
 
