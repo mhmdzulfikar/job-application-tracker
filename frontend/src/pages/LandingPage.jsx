@@ -214,7 +214,7 @@ const LandingPage = () => {
                     <span className="text-xl font-bold flex items-center gap-2 hover:scale-110 transition-transform"><span className="text-blue-500">⚛️</span> React</span>
                     <span className="text-xl font-bold flex items-center gap-2 hover:scale-110 transition-transform"><span className="text-green-500">🟢</span> Node.js</span>
                     <span className="text-xl font-bold flex items-center gap-2 hover:scale-110 transition-transform"><span className="text-blue-400">🌊</span> Tailwind CSS</span>
-                    <span className="text-xl font-bold flex items-center gap-2 hover:scale-110 transition-transform"><span className="text-emerald-500">⚡</span> Supabase</span>
+                    <span className="text-xl font-bold flex items-center gap-2 hover:scale-110 transition-transform"><span className="text-emerald-500">⚡</span> PostgreSQL</span>
                 </div>
             </div>
         </RevealOnScroll>

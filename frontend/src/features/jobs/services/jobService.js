@@ -8,8 +8,17 @@ const getAuthHeader = () => {
 
 export const jobService = {
     // 1. Ambil semua data
-    getAll: async (config) => {
-        const response = await api.get('/jobs', config  );
+    getAll: async (config = {}) => {
+        // Kita racik ulang confignya biar dua-duanya masuk
+        const finalConfig = {
+            ...config, // Ambil semua bawaan Kanban (misal: params)
+            headers: {
+                ...(config.headers || {}), // Kalau Kanban bawa header, pertahanin
+                ...getAuthHeader().headers // Tambahin token Authorization dari local storage
+            }
+        };
+
+        const response = await api.get('/jobs', finalConfig);
         return response.data;
     },
 
