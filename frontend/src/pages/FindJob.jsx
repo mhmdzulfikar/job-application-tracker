@@ -24,6 +24,7 @@ const [query, setQuery] = useState(sessionStorage.getItem('savedQuery') || '');
         try {
             // Nembak backend bawa 2 data: search & location
             const response = await api.get(`/external-jobs?search=${query}&location=${location}`);
+            console.log("INI DATA DARI JSEARCH BOS: ", response.data);
             setResults(response.data); 
         } catch (error) {
             console.error("Gagal mencari loker:", error);

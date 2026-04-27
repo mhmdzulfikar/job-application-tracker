@@ -1,29 +1,24 @@
-const jwt = require('jsonwebtoken'); // 1. Panggil library JWT (alat scanner tiket)
+const jwt = require('jsonwebtoken');
 
 const verifyToken = (req, res, next) => {
-    // 2. Cek Header Request: "Eh, lu bawa surat jalan (Authorization) gak?"
-    const authHeader = req.headers['authorization'];
-    
-    // 3. Ambil Tokennya: Header biasanya isinya "Bearer <token_panjang>"
-    // Kita cuma butuh bagian tokennya aja (index 1 setelah spasi).
-    const token = authHeader && authHeader.split(' ')[1];
+    // console.log("CCTV MENDETEKSI COOKIES: ", req.cookies);
+    // 1. CARA BARU: Satpam langsung ngecek brankas Cookie!
+    // (Pastiin lu pake req.cookies, JANGAN req.headers lagi)
+    const token = req.cookies?.token;
 
-    // 4. Cek Keberadaan Token: Kalau kosong, berarti dia tamu tak diundang.
-    if (token == null) return res.status(401).json({ msg: "Belum Login / Gak Ada Token" });
+    // 2. Kalau brankasnya kosong (User belum login)
+    if (!token) {
+        return res.status(401).json({ error: "Akses ditolak! Tiket tidak ditemukan di dalam Cookie." });
+    }
 
-    // 5. Verifikasi Token: Validasi tanda tangan digitalnya.
-    // Pake kunci rahasia yang sama pas bikin token (ACCESS_TOKEN_SECRET).
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        
-        // 6. Kalau Error: Tokennya palsu atau expired
-        if (err) return res.status(403).json({ msg: "Token Salah / Kadaluarsa" });
-        
-        // 7. SUCCESS!
-        req.user = decoded; 
-        
-        // 8. Silakan Masuk
-        next();
-    });
+    try {
+        // 3. Cek keaslian tiket
+        const verified = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = verified; // Masukin data user (ID) ke request biar bisa dipake sama Controller
+        next(); // Silakan masuk Bos!
+    } catch (error) {
+        res.status(403).json({ error: "Token tidak valid atau sudah expired!" });
+    }
 };
 
-module.exports = { verifyToken };
+module.exports = verifyToken;

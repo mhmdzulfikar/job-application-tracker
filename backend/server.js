@@ -1,7 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const pool = require('./config/db'); // Pastikan ini ngga error ya path-nya
+const pool = require('./config/db'); 
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -12,8 +13,14 @@ const { searchExternalJobs } = require('./controllers/externalJobController');
 // ==============================
 // 1. MIDDLEWARE (SATPAM DEPAN WAJIB DI ATAS)
 // ==============================
-app.use(cors({ origin: '*' })); // CORS harus di atas biar jalan tol-nya kebuka buat React!
-app.use(express.json()); // Biar backend bisa baca request JSON dari React
+app.use(cors({
+    origin: 'http://localhost:5173', 
+    credentials: true // INI KUNCI SAKTINYA BIAR COOKIE BISA NYEBRANG!
+}));
+
+app.use(express.json()); 
+app.use(cookieParser()); // ✅ PINDAHIN KE SINI BOS! WAJIB SEBELUM ROUTES!
+
 app.get('/ping', (req, res) => {
     res.json({ message: "PONG! SERVER SEHAT!" });
 });
@@ -23,9 +30,9 @@ app.get('/ping', (req, res) => {
 // ==============================
 app.use('/api/auth', authRoutes); 
 app.use('/api/jobs', jobRoutes);
-app.get('/api/external-jobs', searchExternalJobs); // Route buat nembak API luar (JSearch)
+app.get('/api/external-jobs', searchExternalJobs); 
 
-// Route Percobaan (Buat ngecek server hidup/mati)
+// Route Percobaan
 app.get('/', (req, res) => {
     res.json({ message: "========= Welcome to MagangHunter API! Server is running! =========" });
 });
@@ -36,7 +43,5 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`========= Server MagangHunter port ${PORT} =========`);
 });
-
-
 
 module.exports = app;

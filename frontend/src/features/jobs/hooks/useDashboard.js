@@ -16,51 +16,45 @@ export default function useDashboard() {
   const [activeId, setActiveId] = useState(null);
   const [selectedJob, setSelectedJob] = useState(null);
 
-
-  // ==============================
-  // 1. FETCH JOBS (Dengan Penerjemah)
+// ==============================
+  // 1. FETCH JOBS (Versi Clean Code HttpOnly)
   // ==============================
   const fetchJobs = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
+      // KODE BERSIH: Ngga ada lagi localStorage.getItem("token")
+      // Ngga ada lagi headers: { Authorization... }
+      // Langsung gas panggil fungsinya, Axios otomatis bawa Cookie lu!
+      const data = await jobService.getAll(); 
 
-      const data = await jobService.getAll({
-        headers: {
-          Authorization: `Bearer ${token}` 
-        }
-      });
       // JURUS SENIOR: Normalisasi data biar UI lu ngga bingung!
       const normalizedData = data.map(job => ({
         ...job,
-        company: job.company_name || job.company || "", // Paksa ke 'company'
-        interviewDate: job.interview_date || "",        // Terjemahin tanggal
-        tasks: job.tasks || [],                         // Pastiin array ngga undefined
+        company: job.company_name || job.company || "", 
+        interviewDate: job.interview_date || "",        
+        tasks: job.tasks || [],                         
         notes: job.notes || "",
-        salary: job.salary || ""                       // Pastiin string ngga undefined
+        salary: job.salary || ""                        
       }));
 
       setJobs(normalizedData);
     } catch (error) {
-      toast.error("Gagal mengambil data lamaran!");
-    if (error.response) {
-      // Artinya server ngerespons dengan status 4xx atau 5xx
-      console.log("Pesan dari backend:", error.response.data.error); 
-      // Output: "Gagal ngambil data lamaran dari brankas!"
-    } else {
-      console.log("Error lain:", error.message);
-    } 
+      // Error handling yang lebih rapi
+      if (error.response?.status === 401) {
+        toast.error("Sesi telah habis. Silakan Login ulang!");
+        // Kalau lu pake useNavigate di file ini, lu bisa tambahin: navigate('/login');
+      } else {
+        toast.error("Gagal mengambil data lamaran!");
+      }
+      
+      console.log("Pesan dari backend:", error.response?.data?.error || error.message);
     } finally {
       setIsLoading(false);
-    } 
-    
-   
+    }
   };
 
-    useEffect(() => {
+  useEffect(() => {
     fetchJobs();
   }, []);
-
   // ==============================
   // 2. SAVE DETAIL JOB (Benerin Tipe Data)
   // ==============================

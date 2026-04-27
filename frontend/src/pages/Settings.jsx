@@ -15,26 +15,24 @@ export default function Settings() {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const token = localStorage.getItem("token");
-                if (!token) return;
-
-                const response = await api.get('/auth/profile', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                // KODE BERSIH: Ngga perlu lagi ngambil token dari localStorage!
+                // Axios otomatis bawa HttpOnly Cookie lu ke backend
+                const response = await api.get('/auth/profile');
 
                 setProfile({
                     name: response.data.user.name || "",
                     target_role: response.data.user.target_role || ""
                 });
             } catch (error) {
-                toast.error("Gagal sinkronisasi data dari Cloud!");
+                toast.error("Gagal sinkronisasi data dari Cloud! Sesi mungkin telah habis.");
+                // navigate('/login'); // Lempar ke login kalau cookie expired/ngga ada
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchProfile();
-    }, []);
+    }, [navigate]);
     
     // ==========================================
     // 2. SIMPAN KE DATABASE (PUT)
@@ -42,11 +40,8 @@ export default function Settings() {
     const handleSaveProfile = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem("token");
-            
-            await api.put('/auth/profile', profile, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            // KODE BERSIH: Langsung tembak data, cookie otomatis ngikut
+            await api.put('/auth/profile', profile);
             
             toast.success("Identitas berhasil di-update!");
         } catch (error) {
@@ -59,9 +54,9 @@ export default function Settings() {
     // ==========================================
     const handleExportData = async () => {
         try {
-            const token = localStorage.getItem("token");
-            const profileRes = await api.get('/auth/profile', { headers: { Authorization: `Bearer ${token}` } });
-            const jobsRes = await api.get('/jobs', { headers: { Authorization: `Bearer ${token}` } });
+            // KODE BERSIH: Bebas repot urus headers authorization
+            const profileRes = await api.get('/auth/profile');
+            const jobsRes = await api.get('/jobs');
 
             const dataToBackup = {
                 profile: profileRes.data.user,
@@ -85,18 +80,25 @@ export default function Settings() {
     };
 
     // ==========================================
-    // 4. LOGOUT 
+    // 4. LOGOUT (Menghancurkan Brankas)
     // ==========================================
-    const handleLogout = () => {
+    const handleLogout = async () => {
         const confirmLogout = window.confirm("Yakin ingin mengakhiri sesi dan keluar?");
         if (confirmLogout) {
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-            
-            toast.success("Sesi diakhiri. Sampai jumpa!");
-            setTimeout(() => {
-                navigate('/login');
-            }, 1000);
+            try {
+                // Tembak endpoint logout di Node.js biar backend ngehancurin Cookie-nya
+                await api.post('/auth/logout');
+            } catch (error) {
+                console.error("Logout API error, forcing local logout");
+            } finally {
+                // Cukup hapus info nama user aja, token udah diurus backend
+                localStorage.removeItem("user");
+                
+                toast.success("Sesi diakhiri. Sampai jumpa!");
+                setTimeout(() => {
+                    navigate('/login');
+                }, 1000);
+            }
         }
     };
 

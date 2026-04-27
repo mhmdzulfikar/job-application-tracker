@@ -30,25 +30,40 @@ const register = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (user.rows.length === 0) return res.status(400).json({ error: "Email ngga ketemu!" });
 
-        const validPassword = await bcrypt.compare(password, user.rows[0].password);
-        if (!validPassword) return res.status(400).json({ error: "Password salah Bos!" });
+        // A. Cek User di Database
+        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (result.rows.length === 0) {
+            return res.status(400).json({ error: "Email belum terdaftar!" });
+        }
 
-        const token = jwt.sign(
-            { id: user.rows[0].id, email: user.rows[0].email }, 
-            process.env.JWT_SECRET || 'RahasiaNegaraMagangHunter2026', 
-            { expiresIn: '1d' }
-        );
+        const user = result.rows[0]; // <--- NAH! DI SINI VARIABEL 'user' BARU LAHIR!
 
-        res.json({
-            message: "Login Sukses!",
-            token,
-            user: { id: user.rows[0].id, name: user.rows[0].name, target_role: user.rows[0].target_role }
+        // B. Cek Password
+        const validPassword = await bcrypt.compare(password, user.password);
+        if (!validPassword) {
+            return res.status(400).json({ error: "Password salah Bos!" });
+        }
+
+        // C. BIKIN TIKET & MASUKIN KE BRANKAS (TARUH KODENYA DI SINI!)
+        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: false, 
+           sameSite: 'lax',
+            maxAge: 24 * 60 * 60 * 1000 
         });
-    } catch (err) {
-        res.status(500).json({ error: "Server Error pas Login" });
+
+        // D. Balikin respon sukses (Tanpa nyebutin tokennya)
+        res.json({ 
+            message: "Login sukses!", 
+            user: { id: user.id, name: user.name, target_role: user.target_role } 
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Server lagi pusing." });
     }
 };
 
@@ -86,4 +101,23 @@ const updateProfile = async (req, res) => {
     }
 };
 
-module.exports = { register, login, getProfile, updateProfile };
+
+// FUNGSI BUAT NGANCURIN BRANKAS COOKIE
+const logout = (req, res) => {
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+    });
+    res.json({ message: "Brankas dihancurkan. Berhasil logout!" });
+};
+
+
+
+module.exports = { 
+    register, 
+    login, 
+    getProfile,
+    updateProfile,
+    logout
+};

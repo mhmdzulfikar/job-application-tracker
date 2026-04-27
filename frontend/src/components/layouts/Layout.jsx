@@ -49,9 +49,7 @@ export default function Layout() {
         if (!token) return; // Kalau ga ada tiket, yaudah ga usah nanya server
 
         // Suruh kurir nembak API
-        const response = await api.get('/auth/profile', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get('/auth/profile');
 
         // Tangkep datanya dan masukin ke State React biar tampil di Sidebar
         setUserProfile({
